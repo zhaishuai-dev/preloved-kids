@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 const CATEGORIES = ['All', 'Toys', 'Books', 'Clothes', 'Gear', 'Others'];
 const COLLECTION_POINTS = ['Holland Village (Condo Residence)', 'Kent Ridge MRT', 'Delivery (with Grab Fee)'];
@@ -67,6 +67,25 @@ function PinModal({ onSuccess, onClose }: { onSuccess: (pin: string) => void; on
     if (res.ok) { onSuccess(p); }
     else { setError(true); setShake(true); setPin(''); setTimeout(() => setShake(false), 500); }
   };
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key >= '0' && e.key <= '9') {
+        setPin(p => {
+          if (p.length >= 4) return p;
+          const next = p + e.key;
+          setError(false);
+          if (next.length === 4) setTimeout(() => tryPin(next), 150);
+          return next;
+        });
+      } else if (e.key === 'Backspace') {
+        setPin(p => p.slice(0, -1));
+        setError(false);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(30,27,24,0.55)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: 16 }}>

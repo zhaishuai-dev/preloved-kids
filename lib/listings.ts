@@ -1,7 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 
-const DATA_PATH = path.join(process.cwd(), 'data', 'listings.json');
+const SEED_PATH = path.join(process.cwd(), 'data', 'listings.json');
+const DATA_PATH = process.env.VERCEL ? '/tmp/listings.json' : SEED_PATH;
+
+function ensureDataFile() {
+  if (process.env.VERCEL && !fs.existsSync(DATA_PATH)) {
+    fs.copyFileSync(SEED_PATH, DATA_PATH);
+  }
+}
 
 export interface Listing {
   id: string;
@@ -27,12 +34,14 @@ interface ListingsData {
 }
 
 export function getListings(): Listing[] {
+  ensureDataFile();
   const raw = fs.readFileSync(DATA_PATH, 'utf-8');
   const data: ListingsData = JSON.parse(raw);
   return data.listings;
 }
 
 export function saveListings(listings: Listing[]): void {
+  ensureDataFile();
   const data: ListingsData = { listings };
   fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), 'utf-8');
 }
