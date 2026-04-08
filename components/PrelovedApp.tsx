@@ -59,6 +59,9 @@ function PinModal({ onSuccess, onClose }: { onSuccess: (pin: string) => void; on
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
   const [loading, setLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
 
   const tryPin = async (p: string) => {
     setLoading(true);
@@ -68,32 +71,29 @@ function PinModal({ onSuccess, onClose }: { onSuccess: (pin: string) => void; on
     else { setError(true); setShake(true); setPin(''); setTimeout(() => setShake(false), 500); }
   };
 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key >= '0' && e.key <= '9') {
-        setPin(p => {
-          if (p.length >= 4) return p;
-          const next = p + e.key;
-          setError(false);
-          if (next.length === 4) setTimeout(() => tryPin(next), 150);
-          return next;
-        });
-      } else if (e.key === 'Backspace') {
-        setPin(p => p.slice(0, -1));
-        setError(false);
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, []);
+  const handleDigit = (digit: string) => {
+    if (loading) return;
+    const next = pin + digit;
+    if (next.length > 4) return;
+    setPin(next);
+    setError(false);
+    if (next.length === 4) setTimeout(() => tryPin(next), 150);
+  };
 
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(30,27,24,0.55)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: 16 }}>
       <div onClick={e => e.stopPropagation()} style={{ background: T.bg, borderRadius: 18, maxWidth: 340, width: '100%', padding: '32px 28px', boxShadow: '0 24px 64px rgba(0,0,0,0.22)', textAlign: 'center', animation: shake ? 'shakeX 0.4s ease' : 'none' }}>
+        <input ref={inputRef} type="tel" inputMode="numeric" maxLength={4} value={pin}
+          onChange={e => {
+            const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+            setPin(val); setError(false);
+            if (val.length === 4) setTimeout(() => tryPin(val), 150);
+          }}
+          style={{ position: 'absolute', opacity: 0, width: 1, height: 1, pointerEvents: 'none' }} />
         <div style={{ fontSize: 36, marginBottom: 12 }}>🔐</div>
         <h3 style={{ fontFamily: df, fontSize: 20, fontWeight: 700, color: T.text, margin: '0 0 6px' }}>Seller Mode</h3>
         <p style={{ fontFamily: ff, fontSize: 13, color: T.muted, margin: '0 0 20px' }}>Enter your PIN to manage listings</p>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 16 }} onClick={() => inputRef.current?.focus()}>
           {[0,1,2,3].map(i => (
             <div key={i} style={{ width: 44, height: 52, borderRadius: 10, border: `2px solid ${error ? T.red : pin.length > i ? T.accent : T.border}`, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 700, fontFamily: ff, color: T.text }}>{pin[i] ? '•' : ''}</div>
           ))}
@@ -102,8 +102,9 @@ function PinModal({ onSuccess, onClose }: { onSuccess: (pin: string) => void; on
           {([1,2,3,4,5,6,7,8,9,null,0,'⌫'] as (number|string|null)[]).map((n, i) => (
             n === null ? <div key={i} /> :
             <button key={i} onClick={() => {
-              if (n === '⌫') { setPin(p => p.slice(0, -1)); setError(false); }
-              else if (pin.length < 4) { const next = pin + n; setPin(next); setError(false); if (next.length === 4) setTimeout(() => tryPin(next), 150); }
+              if (n === '⌫') { setPin(p => { setError(false); return p.slice(0, -1); }); }
+              else { handleDigit(String(n)); }
+              inputRef.current?.focus();
             }} style={{ width: '100%', height: 44, borderRadius: 10, border: `1px solid ${T.border}`, background: T.card, fontFamily: ff, fontSize: n === '⌫' ? 18 : 17, fontWeight: 600, color: T.text, cursor: 'pointer' }}>{n}</button>
           ))}
         </div>
