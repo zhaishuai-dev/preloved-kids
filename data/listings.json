@@ -1,0 +1,62 @@
+{
+  "listings": [
+    {
+      "id": "1775616558829",
+      "title": "Pet Rabbit with Cage Setup",
+      "brand": "",
+      "category": "Others",
+      "condition": "Good",
+      "ageRange": "3-6y",
+      "price": 0,
+      "pricingType": "free",
+      "description": "Live pet rabbit in wire cage with bedding and feeding setup. The rabbit appears healthy and well-cared for with soft white and grey fur. This would be suitable for families looking to adopt a pet rabbit with basic housing included.",
+      "originalImage": "https://res.cloudinary.com/dsvd5bupt/image/upload/v1775616506/preloved-kids/qxbuey3lu5ahunmrfbni.jpg",
+      "photos": [
+        "https://res.cloudinary.com/dsvd5bupt/image/upload/v1775616506/preloved-kids/qxbuey3lu5ahunmrfbni.jpg"
+      ],
+      "seller": "Vivian",
+      "location": "Kent Ridge MRT, Delivery (with Grab Fee), Holland Village",
+      "whatsapp": "6591234567",
+      "archived": false,
+      "createdAt": "2026-04-08T02:49:18.829Z"
+    },
+    {
+      "id": "1775616090812",
+      "title": "Wall Mural Art Decoration",
+      "brand": "",
+      "category": "Clothes",
+      "condition": "Good",
+      "ageRange": "3-6y",
+      "price": 0,
+      "pricingType": "paywhatyouwant",
+      "description": "Colorful wall mural featuring a green rabbit silhouette, small bear figure, and decorative flowers. Appears to be made of fabric or felt materials applied to wall surface. Shows some wear but overall in good condition.",
+      "originalImage": "https://res.cloudinary.com/dsvd5bupt/image/upload/v1775616057/preloved-kids/gyapwkoq2zwxqodhutbt.jpg",
+      "photos": [
+        "https://res.cloudinary.com/dsvd5bupt/image/upload/v1775616057/preloved-kids/gyapwkoq2zwxqodhutbt.jpg"
+      ],
+      "seller": "Vivian",
+      "location": "Bukit Timah",
+      "whatsapp": "6591234567",
+      "archived": false,
+      "createdAt": "2026-04-08T02:41:30.812Z"
+    },
+    {
+      "id": "1",
+      "title": "LEGO Duplo Town Fire Station 10903",
+      "brand": "LEGO",
+      "category": "Toys",
+      "condition": "Good",
+      "ageRange": "1-3y",
+      "price": 15,
+      "pricingType": "fixed",
+      "description": "Complete set with all pieces, fire truck, and 2 firefighter figures. Minor scratches on baseplate. Original box included.",
+      "originalImage": "",
+      "photos": [],
+      "seller": "Vivian",
+      "location": "Bukit Timah",
+      "whatsapp": "6591234567",
+      "archived": false,
+      "createdAt": "2026-04-06T00:00:00Z"
+    }
+  ]
+}
