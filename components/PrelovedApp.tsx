@@ -424,7 +424,7 @@ export default function PrelovedApp({ initialListings }: { initialListings: List
     await apiCall('/api/listings', 'POST', sellerPin, {
       ...form, price: form.pricingType === 'free' ? 0 : Number(form.price) || 0,
       photos: photoUrls, originalImage: photoUrls[0] || '',
-      seller: 'Vivian', whatsapp: '6591234567',
+      seller: 'Seller', whatsapp: '6591152527',
     });
     await refreshListings();
     setShowCreate(false);
