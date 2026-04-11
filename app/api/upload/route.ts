@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+export const maxDuration = 60;
 import { uploadImage } from '@/lib/cloudinary';
 import { recognizeProduct } from '@/lib/ai';
 
