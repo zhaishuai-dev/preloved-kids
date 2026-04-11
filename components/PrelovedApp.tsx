@@ -375,7 +375,7 @@ function DetailModal({ item, onClose, onEdit, onArchive, isSeller }: {
           <div style={{ fontSize: 13, color: T.muted, fontFamily: ff, marginTop: 10, fontWeight: 500 }}>Listed by {item.seller}</div>
           <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
             {!a && (
-              <a href={`https://wa.me/${item.whatsapp}?text=Hi! I'm interested in "${item.title}" from Preloved Kids 🧸`} target="_blank" rel="noopener noreferrer"
+              <a href={{`https://wa.me/${item.whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in "${item.title}" from Preloved Kids 🧸${item.photos[0] ? `\n\n📷 Item photo: ${item.photos[0]}` : ''}`)}`}} target="_blank" rel="noopener noreferrer"
                 style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '13px 0', borderRadius: 12, background: '#25D366', color: '#fff', fontFamily: ff, fontWeight: 700, fontSize: 15, textDecoration: 'none', boxShadow: '0 2px 8px rgba(37,211,102,0.25)' }}>💬 WhatsApp</a>
             )}
             {isSeller && (
