@@ -202,24 +202,31 @@ function ListingForm({ initialForm, existingPhotos, onSave, onClose, isEdit, pin
     setStep(2); setAiStatus('');
   };
 
-  const uploadRemainingPhotos = async () => {
-    const toUpload = localPhotos.filter((p, i) => p.base64 && !uploadedUrls[i]);
+  const uploadRemainingPhotos = async (): Promise<string[]> => {
+    // Build a mutable copy of current URLs so we capture uploads in this call
+    const urls = [...uploadedUrls];
     for (let i = 0; i < localPhotos.length; i++) {
       const p = localPhotos[i];
-      if (p.base64 && !uploadedUrls[i]) {
+      if (p.base64 && !urls[i]) {
         const res = await uploadAndAnalyze(p.base64, p.mediaType!, pin, false);
-        if (res.imageUrl) setUploadedUrls(prev => { const n = [...prev]; n[i] = res.imageUrl; return n; });
+        if (res.imageUrl) {
+          urls[i] = res.imageUrl;
+          setUploadedUrls(prev => { const n = [...prev]; n[i] = res.imageUrl; return n; });
+        }
       }
     }
+    return urls.filter(Boolean);
   };
 
   const handleSave = async () => {
     if (!form.title.trim()) { setError('Please add a title'); return; }
     setUploading(true);
-    await uploadRemainingPhotos();
+    const finalUrls = await uploadRemainingPhotos();
     setUploading(false);
-    // Get final URLs
-    const finalUrls = localPhotos.map((_, i) => uploadedUrls[i]).filter(Boolean);
+    if (finalUrls.length === 0 && localPhotos.length > 0) {
+      setError('Photo upload failed. Please try again.');
+      return;
+    }
     onSave(form, finalUrls);
   };
 
