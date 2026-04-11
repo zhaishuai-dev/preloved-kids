@@ -334,46 +334,50 @@ function DetailModal({ item, onClose, onEdit, onArchive, isSeller }: {
   const img = item.photos[0] || '/placeholder.png';
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(30,27,24,0.55)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: T.bg, borderRadius: 18, maxWidth: 520, width: '100%', maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.22)' }}>
-        <div style={{ position: 'relative' }}>
-          <img src={img} alt="" style={{ width: '100%', height: 280, objectFit: 'cover', borderRadius: '18px 18px 0 0', filter: a ? 'grayscale(30%)' : 'none' }} />
-          <button onClick={onClose} style={{ position: 'absolute', top: 12, right: 12, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
-          {isSeller && <button onClick={e => { e.stopPropagation(); onEdit(item); }} style={{ position: 'absolute', top: 12, right: 54, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✏️</button>}
-          <div style={{ position: 'absolute', bottom: 12, left: 12 }}>
-            {a ? <span style={{ background: T.archiveBg, color: T.archiveText, padding: '4px 11px', borderRadius: 20, fontSize: 12.5, fontWeight: 700, fontFamily: ff }}>ARCHIVED</span>
-              : <PriceBadge price={item.price} pricingType={item.pricingType} />}
+      <div onClick={e => e.stopPropagation()} style={{ background: T.bg, borderRadius: 18, maxWidth: 520, width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 64px rgba(0,0,0,0.22)' }}>
+        <div style={{ flex: 1, overflow: 'auto', borderRadius: '18px 18px 0 0' }}>
+          <div style={{ position: 'relative' }}>
+            <img src={img} alt="" style={{ width: '100%', height: 280, objectFit: 'cover', borderRadius: '18px 18px 0 0', filter: a ? 'grayscale(30%)' : 'none' }} />
+            <button onClick={onClose} style={{ position: 'absolute', top: 12, right: 12, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+            {isSeller && <button onClick={e => { e.stopPropagation(); onEdit(item); }} style={{ position: 'absolute', top: 12, right: 54, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✏️</button>}
+            <div style={{ position: 'absolute', bottom: 12, left: 12 }}>
+              {a ? <span style={{ background: T.archiveBg, color: T.archiveText, padding: '4px 11px', borderRadius: 20, fontSize: 12.5, fontWeight: 700, fontFamily: ff }}>ARCHIVED</span>
+                : <PriceBadge price={item.price} pricingType={item.pricingType} />}
+            </div>
+          </div>
+          <div style={{ padding: '20px 24px 16px' }}>
+            <h2 style={{ fontFamily: df, fontSize: 22, fontWeight: 700, color: T.text, margin: 0, lineHeight: 1.3 }}>{item.title}</h2>
+            <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+              <ConditionDot condition={item.condition} /><BrandTag brand={item.brand} /><Tag>{item.ageRange}</Tag><Tag>{item.category}</Tag>
+            </div>
+            {item.originalImage && item.photos[0] && (
+              <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${T.border}` }}>
+                  <div style={{ padding: '5px 10px', background: T.tag, fontSize: 11, fontWeight: 700, color: T.muted, fontFamily: ff, textAlign: 'center' }}>ORIGINAL</div>
+                  <img src={item.originalImage} alt="" style={{ width: '100%', height: 130, objectFit: 'cover' }} />
+                </div>
+                <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${T.border}` }}>
+                  <div style={{ padding: '5px 10px', background: T.tag, fontSize: 11, fontWeight: 700, color: T.muted, fontFamily: ff, textAlign: 'center' }}>AS-IS</div>
+                  <img src={item.photos[0]} alt="" style={{ width: '100%', height: 130, objectFit: 'cover' }} />
+                </div>
+              </div>
+            )}
+            <p style={{ fontFamily: ff, fontSize: 14, color: T.textSec, lineHeight: 1.7, marginTop: 16 }}>{item.description}</p>
+            {item.location && (
+              <div style={{ marginTop: 14 }}>
+                <p style={{ fontFamily: ff, fontSize: 12, fontWeight: 700, color: T.muted, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>📍 Collection / Delivery</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {item.location.split(',').map(pt => pt.trim()).filter(Boolean).map(pt => (
+                    <span key={pt} style={{ background: T.accentLight, color: T.accent, padding: '5px 12px', borderRadius: 20, fontSize: 12.5, fontWeight: 600, fontFamily: ff }}>{pt}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div style={{ fontSize: 13, color: T.muted, fontFamily: ff, marginTop: 10, fontWeight: 500 }}>Listed by {item.seller}</div>
           </div>
         </div>
-        <div style={{ padding: '20px 24px 24px' }}>
-          <h2 style={{ fontFamily: df, fontSize: 22, fontWeight: 700, color: T.text, margin: 0, lineHeight: 1.3 }}>{item.title}</h2>
-          <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-            <ConditionDot condition={item.condition} /><BrandTag brand={item.brand} /><Tag>{item.ageRange}</Tag><Tag>{item.category}</Tag>
-          </div>
-          {item.originalImage && item.photos[0] && (
-            <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${T.border}` }}>
-                <div style={{ padding: '5px 10px', background: T.tag, fontSize: 11, fontWeight: 700, color: T.muted, fontFamily: ff, textAlign: 'center' }}>ORIGINAL</div>
-                <img src={item.originalImage} alt="" style={{ width: '100%', height: 130, objectFit: 'cover' }} />
-              </div>
-              <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${T.border}` }}>
-                <div style={{ padding: '5px 10px', background: T.tag, fontSize: 11, fontWeight: 700, color: T.muted, fontFamily: ff, textAlign: 'center' }}>AS-IS</div>
-                <img src={item.photos[0]} alt="" style={{ width: '100%', height: 130, objectFit: 'cover' }} />
-              </div>
-            </div>
-          )}
-          <p style={{ fontFamily: ff, fontSize: 14, color: T.textSec, lineHeight: 1.7, marginTop: 16 }}>{item.description}</p>
-          {item.location && (
-            <div style={{ marginTop: 14 }}>
-              <p style={{ fontFamily: ff, fontSize: 12, fontWeight: 700, color: T.muted, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>📍 Collection / Delivery</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {item.location.split(',').map(pt => pt.trim()).filter(Boolean).map(pt => (
-                  <span key={pt} style={{ background: T.accentLight, color: T.accent, padding: '5px 12px', borderRadius: 20, fontSize: 12.5, fontWeight: 600, fontFamily: ff }}>{pt}</span>
-                ))}
-              </div>
-            </div>
-          )}
-          <div style={{ fontSize: 13, color: T.muted, fontFamily: ff, marginTop: 10, fontWeight: 500 }}>Listed by {item.seller}</div>
-          <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+        <div style={{ padding: '12px 24px 20px', borderTop: `1px solid ${T.border}`, background: T.bg, borderRadius: '0 0 18px 18px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', gap: 10 }}>
             {!a && (
               <a href={`https://wa.me/${item.whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in "${item.title}" from Preloved Kids 🧸${item.photos[0] ? `\n\n📷 Item photo: ${item.photos[0]}` : ''}`)}`} target="_blank" rel="noopener noreferrer"
                 style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '13px 0', borderRadius: 12, background: '#25D366', color: '#fff', fontFamily: ff, fontWeight: 700, fontSize: 15, textDecoration: 'none', boxShadow: '0 2px 8px rgba(37,211,102,0.25)' }}>💬 WhatsApp</a>
