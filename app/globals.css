@@ -36,3 +36,16 @@ input:focus, select:focus, textarea:focus {
   60% { transform: translateX(-6px); }
   80% { transform: translateX(6px); }
 }
+
+/* Masonry grid responsive columns */
+.masonry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (min-width: 600px) {
+  .masonry-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+}
+@media (min-width: 900px) {
+  .masonry-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+}

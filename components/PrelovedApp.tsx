@@ -123,18 +123,19 @@ function Card({ item, onClick }: { item: Listing; onClick: (item: Listing) => vo
   const img = item.photos[0] || '/placeholder.png';
   return (
     <div onClick={() => onClick(item)} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
-      style={{ background: T.card, borderRadius: 14, overflow: 'hidden', cursor: 'pointer', boxShadow: h ? T.shadowH : T.shadow, transform: h ? 'translateY(-3px)' : 'none', transition: 'all 0.25s ease', border: `1px solid ${h ? T.border : T.cardBorder}`, opacity: a ? 0.7 : 1 }}>
-      <div style={{ position: 'relative', paddingTop: '85%', background: T.tag, overflow: 'hidden' }}>
-        <img src={img} alt={item.title} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 0.3s', transform: h ? 'scale(1.04)' : 'scale(1)', filter: a ? 'grayscale(40%)' : 'none' }} />
-        <div style={{ position: 'absolute', top: 10, right: 10 }}>
-          {a ? <span style={{ background: T.archiveBg, color: T.archiveText, padding: '4px 11px', borderRadius: 20, fontSize: 12.5, fontWeight: 700, fontFamily: ff }}>ARCHIVED</span>
+      style={{ background: T.card, borderRadius: 12, overflow: 'hidden', cursor: 'pointer', boxShadow: h ? T.shadowH : T.shadow, transform: h ? 'translateY(-2px)' : 'none', transition: 'all 0.25s ease', border: `1px solid ${h ? T.border : T.cardBorder}`, opacity: a ? 0.7 : 1, breakInside: 'avoid' as const }}>
+      <div style={{ position: 'relative', background: T.tag, overflow: 'hidden' }}>
+        <img src={img} alt={item.title}
+          style={{ display: 'block', width: '100%', height: 'auto', minHeight: 120, objectFit: 'cover', transition: 'transform 0.3s', transform: h ? 'scale(1.03)' : 'scale(1)', filter: a ? 'grayscale(40%)' : 'none' }} />
+        <div style={{ position: 'absolute', top: 8, right: 8 }}>
+          {a ? <span style={{ background: T.archiveBg, color: T.archiveText, padding: '3px 8px', borderRadius: 14, fontSize: 11, fontWeight: 700, fontFamily: ff }}>ARCHIVED</span>
             : <PriceBadge price={item.price} pricingType={item.pricingType} />}
         </div>
       </div>
-      <div style={{ padding: '14px 16px 16px' }}>
-        <h3 style={{ fontFamily: ff, fontSize: 14, fontWeight: 700, color: a ? T.muted : T.text, margin: 0, lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-          <ConditionDot condition={item.condition} /><BrandTag brand={item.brand} /><Tag>{item.ageRange}</Tag><Tag>{item.category}</Tag>
+      <div style={{ padding: '10px 12px 12px' }}>
+        <h3 style={{ fontFamily: ff, fontSize: 13, fontWeight: 700, color: a ? T.muted : T.text, margin: 0, lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{item.title}</h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 6, flexWrap: 'wrap' }}>
+          <ConditionDot condition={item.condition} /><BrandTag brand={item.brand} /><Tag>{item.ageRange}</Tag>
         </div>
       </div>
     </div>
@@ -527,12 +528,15 @@ export default function PrelovedApp({ initialListings }: { initialListings: List
         <p style={{ fontFamily: ff, fontSize: 13, color: T.muted, fontWeight: 600 }}>{filtered.length} {viewMode === 'archived' ? 'archived ' : ''}item{filtered.length !== 1 ? 's' : ''}</p>
       </div>
 
-      <main style={{ maxWidth: 960, margin: '0 auto', padding: '12px 20px 40px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 18 }}>
-        {filtered.map((item, i) => (
-          <div key={item.id} style={{ animation: `fadeUp 0.35s ease ${i * 0.06}s both` }}><Card item={item} onClick={setSelected} /></div>
-        ))}
-        {filtered.length === 0 && (
-          <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px 0', color: T.muted }}>
+      <main style={{ maxWidth: 960, margin: '0 auto', padding: '12px 12px 40px' }}>
+        {filtered.length > 0 ? (
+          <div className="masonry-grid">
+            {filtered.map((item, i) => (
+              <div key={item.id} style={{ animation: `fadeUp 0.35s ease ${i * 0.06}s both` }}><Card item={item} onClick={setSelected} /></div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '60px 0', color: T.muted }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>{viewMode === 'archived' ? '📦' : '🔍'}</div>
             <p style={{ fontFamily: ff, fontSize: 15, fontWeight: 500 }}>{viewMode === 'archived' ? 'No archived items' : 'No items found'}</p>
           </div>
