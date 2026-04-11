@@ -350,7 +350,7 @@ function DetailModal({ item, onClose, onEdit, onArchive, isSeller }: {
             <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
               <ConditionDot condition={item.condition} /><BrandTag brand={item.brand} /><Tag>{item.ageRange}</Tag><Tag>{item.category}</Tag>
             </div>
-            {item.originalImage && item.photos[0] && (
+            {item.originalImage && item.photos[0] && item.originalImage !== item.photos[0] && (
               <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${T.border}` }}>
                   <div style={{ padding: '5px 10px', background: T.tag, fontSize: 11, fontWeight: 700, color: T.muted, fontFamily: ff, textAlign: 'center' }}>ORIGINAL</div>
@@ -418,10 +418,11 @@ export default function PrelovedApp({ initialListings }: { initialListings: List
   const archivedCount = listings.filter(i => i.archived).length;
   const activeCount = listings.filter(i => !i.archived).length;
 
-  const refreshListings = async (asSeller?: boolean) => {
+  const refreshListings = async (asSeller?: boolean, pin?: string) => {
     const seller = asSeller !== undefined ? asSeller : isSeller;
+    const p = pin || sellerPin;
     const headers: Record<string, string> = {};
-    if (seller && sellerPin) headers['x-seller-pin'] = sellerPin;
+    if (seller && p) headers['x-seller-pin'] = p;
     const res = await fetch(`/api/listings?archived=${seller}`, { headers });
     const data = await res.json();
     if (data.listings) setListings(data.listings);
@@ -508,7 +509,7 @@ export default function PrelovedApp({ initialListings }: { initialListings: List
         Made with ❤️ for the little ones · Preloved Kids © 2026
       </footer>
 
-      {showPin && <PinModal onSuccess={(p) => { setIsSeller(true); setSellerPin(p); setShowPin(false); refreshListings(); }} onClose={() => setShowPin(false)} />}
+      {showPin && <PinModal onSuccess={(p) => { setIsSeller(true); setSellerPin(p); setShowPin(false); refreshListings(true, p); }} onClose={() => setShowPin(false)} />}
       {selected && <DetailModal item={selected} onClose={() => setSelected(null)} onEdit={item => { setSelected(null); setEditItem(item); }} onArchive={handleArchive} isSeller={isSeller} />}
       {showCreate && <ListingForm initialForm={{ title: '', brand: '', category: 'Toys', condition: 'Good', ageRange: '3-6y', price: '', pricingType: 'fixed', description: '', location: COLLECTION_POINTS.join(', ') }} existingPhotos={[]} onSave={handleCreate} onClose={() => setShowCreate(false)} isEdit={false} pin={sellerPin} />}
       {editItem && <ListingForm initialForm={{ title: editItem.title, brand: editItem.brand || '', category: editItem.category, condition: editItem.condition, ageRange: editItem.ageRange, price: String(editItem.price || ''), pricingType: editItem.pricingType, description: editItem.description, location: editItem.location || COLLECTION_POINTS.join(', ') }} existingPhotos={editItem.photos} onSave={handleEdit} onClose={() => setEditItem(null)} isEdit={true} pin={sellerPin} />}
