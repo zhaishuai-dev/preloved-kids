@@ -414,8 +414,11 @@ export default function PrelovedApp({ initialListings }: { initialListings: List
   const archivedCount = listings.filter(i => i.archived).length;
   const activeCount = listings.filter(i => !i.archived).length;
 
-  const refreshListings = async () => {
-    const res = await fetch(`/api/listings?archived=${isSeller}`);
+  const refreshListings = async (asSeller?: boolean) => {
+    const seller = asSeller !== undefined ? asSeller : isSeller;
+    const headers: Record<string, string> = {};
+    if (seller && sellerPin) headers['x-seller-pin'] = sellerPin;
+    const res = await fetch(`/api/listings?archived=${seller}`, { headers });
     const data = await res.json();
     if (data.listings) setListings(data.listings);
   };
@@ -452,7 +455,7 @@ export default function PrelovedApp({ initialListings }: { initialListings: List
       <header style={{ background: T.headerBg, borderBottom: `1.5px solid ${T.border}`, position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ maxWidth: 960, margin: '0 auto', padding: '16px 20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-            <div onClick={() => { if (isSeller) { setIsSeller(false); setSellerPin(''); setViewMode('active'); } else setShowPin(true); }} style={{ cursor: 'pointer', minWidth: 0 }} title={isSeller ? 'Exit seller mode' : 'Enter seller mode'}>
+            <div onClick={() => { if (isSeller) { setIsSeller(false); setSellerPin(''); setViewMode('active'); refreshListings(false); } else setShowPin(true); }} style={{ cursor: 'pointer', minWidth: 0 }} title={isSeller ? 'Exit seller mode' : 'Enter seller mode'}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <h1 style={{ fontFamily: df, fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: T.text, whiteSpace: 'nowrap' }}>🧸 Preloved Kids</h1>
                 {isSeller && <span style={{ background: T.sellerBadgeBg, color: T.sellerBadge, padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700, fontFamily: ff, whiteSpace: 'nowrap', flexShrink: 0 }}>🔓 SELLER</span>}
