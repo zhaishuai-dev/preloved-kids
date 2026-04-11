@@ -159,17 +159,44 @@ function ListingForm({ initialForm, existingPhotos, onSave, onClose, isEdit, pin
   const fileRef = useRef<HTMLInputElement>(null);
   const inp: React.CSSProperties = { display: 'block', width: '100%', marginTop: 5, padding: '10px 12px', borderRadius: 9, border: `1.5px solid ${T.border}`, background: '#fff', fontFamily: ff, fontSize: 14, color: T.text, outline: 'none', boxSizing: 'border-box', fontWeight: 500 };
 
+  const compressImage = useCallback((file: File, maxW = 1200, maxH = 1200, quality = 0.82): Promise<{ base64: string; mediaType: string }> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width: w, height: h } = img;
+        if (w > maxW || h > maxH) {
+          const ratio = Math.min(maxW / w, maxH / h);
+          w = Math.round(w * ratio);
+          h = Math.round(h * ratio);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve({ base64: dataUrl.split(',')[1], mediaType: 'image/jpeg' });
+        URL.revokeObjectURL(img.src);
+      };
+      img.onerror = () => { URL.revokeObjectURL(img.src); reject(new Error('Failed to load image')); };
+      img.src = URL.createObjectURL(file);
+    });
+  }, []);
+
   const processFiles = useCallback(async (files: FileList) => {
     setError('');
-    const vt = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const vt = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
     for (const f of Array.from(files).slice(0, 5 - localPhotos.length)) {
-      if (!vt.includes(f.type)) { setError('JPG, PNG, GIF or WebP only'); continue; }
-      if (f.size > 10 * 1024 * 1024) { setError('Max 10MB'); continue; }
+      if (!vt.includes(f.type) && !f.name.toLowerCase().endsWith('.heic')) { setError('JPG, PNG, GIF or WebP only'); continue; }
+      if (f.size > 20 * 1024 * 1024) { setError('Max 20MB'); continue; }
       const preview = URL.createObjectURL(f);
-      const base64 = await new Promise<string>(r => { const rd = new FileReader(); rd.onload = () => r((rd.result as string).split(',')[1]); rd.readAsDataURL(f); });
-      setLocalPhotos(prev => [...prev, { preview, base64, mediaType: f.type }]);
+      try {
+        const { base64, mediaType } = await compressImage(f);
+        setLocalPhotos(prev => [...prev, { preview, base64, mediaType }]);
+      } catch {
+        setError('Failed to process image. Try another photo.');
+      }
     }
-  }, [localPhotos.length]);
+  }, [localPhotos.length, compressImage]);
 
   const handleDrop = useCallback((e: React.DragEvent) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files?.length) processFiles(e.dataTransfer.files); }, [processFiles]);
   const removePhoto = (idx: number) => { setLocalPhotos(prev => { const n = [...prev]; n.splice(idx, 1); return n; }); setUploadedUrls(prev => { const n = [...prev]; n.splice(idx, 1); return n; }); };
