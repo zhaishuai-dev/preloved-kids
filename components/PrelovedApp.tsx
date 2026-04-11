@@ -451,15 +451,15 @@ export default function PrelovedApp({ initialListings }: { initialListings: List
     <div style={{ fontFamily: ff, background: T.bg, minHeight: '100vh', color: T.text }}>
       <header style={{ background: T.headerBg, borderBottom: `1.5px solid ${T.border}`, position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ maxWidth: 960, margin: '0 auto', padding: '16px 20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div onClick={() => { if (isSeller) { setIsSeller(false); setSellerPin(''); setViewMode('active'); } else setShowPin(true); }} style={{ cursor: 'pointer' }} title={isSeller ? 'Exit seller mode' : 'Enter seller mode'}>
-                <h1 style={{ fontFamily: df, fontSize: 27, fontWeight: 800, letterSpacing: '-0.02em', color: T.text }}>🧸 Preloved Kids</h1>
-                <p style={{ fontSize: 13, color: T.muted, marginTop: 2, fontWeight: 500 }}>Quality second-hand treasures for little ones</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+            <div onClick={() => { if (isSeller) { setIsSeller(false); setSellerPin(''); setViewMode('active'); } else setShowPin(true); }} style={{ cursor: 'pointer', minWidth: 0 }} title={isSeller ? 'Exit seller mode' : 'Enter seller mode'}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <h1 style={{ fontFamily: df, fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: T.text, whiteSpace: 'nowrap' }}>🧸 Preloved Kids</h1>
+                {isSeller && <span style={{ background: T.sellerBadgeBg, color: T.sellerBadge, padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700, fontFamily: ff, whiteSpace: 'nowrap', flexShrink: 0 }}>🔓 SELLER</span>}
               </div>
-              {isSeller && <span style={{ background: T.sellerBadgeBg, color: T.sellerBadge, padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700, fontFamily: ff, whiteSpace: 'nowrap', alignSelf: 'flex-start', marginTop: 4 }}>🔓 SELLER</span>}
+              <p style={{ fontSize: 12, color: T.muted, marginTop: 2, fontWeight: 500 }}>Quality second-hand treasures for little ones</p>
             </div>
-            {isSeller && <button onClick={() => setShowCreate(true)} style={{ padding: '10px 20px', borderRadius: 11, background: T.accent, color: '#fff', border: 'none', fontFamily: ff, fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 3px 10px rgba(212,96,58,0.3)' }}>✨ List Item</button>}
+            {isSeller && <button onClick={() => setShowCreate(true)} style={{ padding: '9px 14px', borderRadius: 11, background: T.accent, color: '#fff', border: 'none', fontFamily: ff, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, boxShadow: '0 3px 10px rgba(212,96,58,0.3)', whiteSpace: 'nowrap', flexShrink: 0 }}>✨ List</button>}
           </div>
           <div style={{ marginTop: 14, position: 'relative' }}>
             <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: T.muted }}>🔍</span>
