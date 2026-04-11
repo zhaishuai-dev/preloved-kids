@@ -13,8 +13,7 @@ export interface AIProductResult {
 }
 
 export async function recognizeProduct(
-  base64Image: string,
-  mediaType: string
+  imageUrl: string,
 ): Promise<AIProductResult | null> {
   try {
     const response = await client.messages.create({
@@ -26,7 +25,7 @@ export async function recognizeProduct(
           content: [
             {
               type: 'image',
-              source: { type: 'base64', media_type: mediaType as any, data: base64Image },
+              source: { type: 'url', url: imageUrl },
             },
             {
               type: 'text',

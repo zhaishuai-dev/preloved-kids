@@ -20,13 +20,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing image or mediaType' }, { status: 400 });
     }
 
-    // Upload to Cloudinary
+    // Upload to Cloudinary first
     const imageUrl = await uploadImage(image, mediaType);
 
-    // Optionally run AI recognition
+    // Run AI recognition using the Cloudinary URL (faster than base64)
     let aiResult = null;
     if (analyze) {
-      aiResult = await recognizeProduct(image, mediaType);
+      aiResult = await recognizeProduct(imageUrl);
     }
 
     return NextResponse.json({
