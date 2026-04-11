@@ -1,7 +1,9 @@
-import { Client } from '@notionhq/client';
+import { createClient } from '@supabase/supabase-js';
 
-const notion = new Client({ auth: process.env.NOTION_API_KEY });
-const DATABASE_ID = process.env.NOTION_DATABASE_ID!;
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export interface Listing {
   id: string;
@@ -22,82 +24,99 @@ export interface Listing {
   createdAt: string;
 }
 
-function pageToListing(page: any): Listing {
-  const props = page.properties;
+function rowToListing(row: any): Listing {
   return {
-    id: page.id,
-    title: props['Title']?.title?.[0]?.plain_text || '',
-    brand: props['Brand']?.rich_text?.[0]?.plain_text || '',
-    category: props['Category']?.select?.name || 'Others',
-    condition: props['Condition']?.select?.name || 'Good',
-    ageRange: props['Age Range']?.select?.name || '3-6y',
-    price: props['Price']?.number || 0,
-    pricingType: props['Pricing Type']?.select?.name || 'fixed',
-    description: props['Description']?.rich_text?.[0]?.plain_text || '',
-    originalImage: props['Original Image']?.rich_text?.[0]?.plain_text || '',
-    photos: (props['Photos']?.rich_text?.[0]?.plain_text || '').split(',').filter(Boolean),
-    seller: 'Seller',
-    location: props['Location']?.rich_text?.[0]?.plain_text || '',
-    whatsapp: props['WhatsApp']?.rich_text?.[0]?.plain_text || '6591152527',
-    archived: props['Archived']?.checkbox || false,
-    createdAt: page.created_time,
+    id: row.id,
+    title: row.title || '',
+    brand: row.brand || '',
+    category: row.category || 'Others',
+    condition: row.condition || 'Good',
+    ageRange: row.age_range || '3-6y',
+    price: row.price || 0,
+    pricingType: row.pricing_type || 'fixed',
+    description: row.description || '',
+    originalImage: row.original_image || '',
+    photos: row.photos ? row.photos.split(',').filter(Boolean) : [],
+    seller: row.seller || 'Seller',
+    location: row.location || '',
+    whatsapp: row.whatsapp || '6591152527',
+    archived: row.archived || false,
+    createdAt: row.created_at,
   };
 }
 
 export async function getListings(): Promise<Listing[]> {
-  const response = await notion.databases.query({
-    database_id: DATABASE_ID,
-    sorts: [{ timestamp: 'created_time', direction: 'descending' }],
-  });
-  return response.results.map(pageToListing);
+  const { data, error } = await supabase
+    .from('listings')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data || []).map(rowToListing);
 }
 
 export async function addListing(listing: Omit<Listing, 'id' | 'createdAt'>): Promise<Listing> {
-  const page = await notion.pages.create({
-    parent: { database_id: DATABASE_ID },
-    properties: {
-      'Title': { title: [{ text: { content: listing.title } }] },
-      'Brand': { rich_text: [{ text: { content: listing.brand || '' } }] },
-      'Category': { select: { name: listing.category } },
-      'Condition': { select: { name: listing.condition } },
-      'Age Range': { select: { name: listing.ageRange } },
-      'Price': { number: listing.price },
-      'Pricing Type': { select: { name: listing.pricingType } },
-      'Description': { rich_text: [{ text: { content: listing.description || '' } }] },
-      'Photos': { rich_text: [{ text: { content: listing.photos.join(',') } }] },
-      'Original Image': { rich_text: [{ text: { content: listing.originalImage || '' } }] },
-      'Location': { rich_text: [{ text: { content: listing.location || '' } }] },
-      'WhatsApp': { rich_text: [{ text: { content: listing.whatsapp || '6591152527' } }] },
-      'Archived': { checkbox: false },
-    },
-  });
-  return pageToListing(page);
+  const { data, error } = await supabase
+    .from('listings')
+    .insert({
+      title: listing.title,
+      brand: listing.brand,
+      category: listing.category,
+      condition: listing.condition,
+      age_range: listing.ageRange,
+      price: listing.price,
+      pricing_type: listing.pricingType,
+      description: listing.description,
+      original_image: listing.originalImage,
+      photos: listing.photos.join(','),
+      seller: listing.seller,
+      location: listing.location,
+      whatsapp: listing.whatsapp,
+      archived: false,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return rowToListing(data);
 }
 
 export async function updateListing(id: string, updates: Partial<Listing>): Promise<Listing | null> {
-  const properties: any = {};
-  if (updates.title !== undefined) properties['Title'] = { title: [{ text: { content: updates.title } }] };
-  if (updates.brand !== undefined) properties['Brand'] = { rich_text: [{ text: { content: updates.brand } }] };
-  if (updates.category !== undefined) properties['Category'] = { select: { name: updates.category } };
-  if (updates.condition !== undefined) properties['Condition'] = { select: { name: updates.condition } };
-  if (updates.ageRange !== undefined) properties['Age Range'] = { select: { name: updates.ageRange } };
-  if (updates.price !== undefined) properties['Price'] = { number: updates.price };
-  if (updates.pricingType !== undefined) properties['Pricing Type'] = { select: { name: updates.pricingType } };
-  if (updates.description !== undefined) properties['Description'] = { rich_text: [{ text: { content: updates.description } }] };
-  if (updates.photos !== undefined) properties['Photos'] = { rich_text: [{ text: { content: updates.photos.join(',') } }] };
-  if (updates.originalImage !== undefined) properties['Original Image'] = { rich_text: [{ text: { content: updates.originalImage } }] };
-  if (updates.location !== undefined) properties['Location'] = { rich_text: [{ text: { content: updates.location } }] };
+  const row: any = {};
+  if (updates.title !== undefined) row.title = updates.title;
+  if (updates.brand !== undefined) row.brand = updates.brand;
+  if (updates.category !== undefined) row.category = updates.category;
+  if (updates.condition !== undefined) row.condition = updates.condition;
+  if (updates.ageRange !== undefined) row.age_range = updates.ageRange;
+  if (updates.price !== undefined) row.price = updates.price;
+  if (updates.pricingType !== undefined) row.pricing_type = updates.pricingType;
+  if (updates.description !== undefined) row.description = updates.description;
+  if (updates.originalImage !== undefined) row.original_image = updates.originalImage;
+  if (updates.photos !== undefined) row.photos = updates.photos.join(',');
+  if (updates.location !== undefined) row.location = updates.location;
 
-  const page = await notion.pages.update({ page_id: id, properties });
-  return pageToListing(page);
+  const { data, error } = await supabase
+    .from('listings')
+    .update(row)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return rowToListing(data);
 }
 
 export async function archiveListing(id: string): Promise<Listing | null> {
-  const page = await notion.pages.retrieve({ page_id: id }) as any;
-  const currentArchived = page.properties['Archived']?.checkbox || false;
-  const updated = await notion.pages.update({
-    page_id: id,
-    properties: { 'Archived': { checkbox: !currentArchived } },
-  });
-  return pageToListing(updated);
+  const { data: current, error: fetchError } = await supabase
+    .from('listings')
+    .select('archived')
+    .eq('id', id)
+    .single();
+  if (fetchError) throw fetchError;
+
+  const { data, error } = await supabase
+    .from('listings')
+    .update({ archived: !current.archived })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return rowToListing(data);
 }
