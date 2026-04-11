@@ -18,7 +18,7 @@ export async function recognizeProduct(
   try {
     const response = await client.messages.create({
       model: 'claude-3-5-haiku-20241022',
-      max_tokens: 500,
+      max_tokens: 1024,
       messages: [
         {
           role: 'user',
