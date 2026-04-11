@@ -124,8 +124,8 @@ function Card({ item, onClick }: { item: Listing; onClick: (item: Listing) => vo
   return (
     <div onClick={() => onClick(item)} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
       style={{ background: T.card, borderRadius: 14, overflow: 'hidden', cursor: 'pointer', boxShadow: h ? T.shadowH : T.shadow, transform: h ? 'translateY(-3px)' : 'none', transition: 'all 0.25s ease', border: `1px solid ${h ? T.border : T.cardBorder}`, opacity: a ? 0.7 : 1 }}>
-      <div style={{ position: 'relative', paddingTop: '72%', background: T.tag, overflow: 'hidden' }}>
-        <img src={img} alt={item.title} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s', transform: h ? 'scale(1.04)' : 'scale(1)', filter: a ? 'grayscale(40%)' : 'none' }} />
+      <div style={{ position: 'relative', paddingTop: '85%', background: T.tag, overflow: 'hidden' }}>
+        <img src={img} alt={item.title} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 0.3s', transform: h ? 'scale(1.04)' : 'scale(1)', filter: a ? 'grayscale(40%)' : 'none' }} />
         <div style={{ position: 'absolute', top: 10, right: 10 }}>
           {a ? <span style={{ background: T.archiveBg, color: T.archiveText, padding: '4px 11px', borderRadius: 20, fontSize: 12.5, fontWeight: 700, fontFamily: ff }}>ARCHIVED</span>
             : <PriceBadge price={item.price} pricingType={item.pricingType} />}
@@ -371,7 +371,7 @@ function DetailModal({ item, onClose, onEdit, onArchive, isSeller }: {
       <div onClick={e => e.stopPropagation()} style={{ background: T.bg, borderRadius: 18, maxWidth: 520, width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 64px rgba(0,0,0,0.22)' }}>
         <div style={{ flex: 1, overflow: 'auto', borderRadius: '18px 18px 0 0' }}>
           <div style={{ position: 'relative' }}>
-            <img src={img} alt="" style={{ width: '100%', height: 280, objectFit: 'cover', borderRadius: '18px 18px 0 0', filter: a ? 'grayscale(30%)' : 'none' }} />
+            <img src={img} alt="" style={{ width: '100%', height: 300, objectFit: 'contain', background: T.tag, borderRadius: '18px 18px 0 0', filter: a ? 'grayscale(30%)' : 'none' }} />
             <button onClick={onClose} style={{ position: 'absolute', top: 12, right: 12, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
             {isSeller && <button onClick={e => { e.stopPropagation(); onEdit(item); }} style={{ position: 'absolute', top: 12, right: 54, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✏️</button>}
             <div style={{ position: 'absolute', bottom: 12, left: 12 }}>
