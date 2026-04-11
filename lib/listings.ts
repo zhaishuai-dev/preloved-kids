@@ -1,14 +1,7 @@
-import fs from 'fs';
-import path from 'path';
+import { Client } from '@notionhq/client';
 
-const SEED_PATH = path.join(process.cwd(), 'data', 'listings.json');
-const DATA_PATH = process.env.VERCEL ? '/tmp/listings.json' : SEED_PATH;
-
-function ensureDataFile() {
-  if (process.env.VERCEL && !fs.existsSync(DATA_PATH)) {
-    fs.copyFileSync(SEED_PATH, DATA_PATH);
-  }
-}
+const notion = new Client({ auth: process.env.NOTION_API_KEY });
+const DATABASE_ID = process.env.NOTION_DATABASE_ID!;
 
 export interface Listing {
   id: string;
@@ -29,44 +22,82 @@ export interface Listing {
   createdAt: string;
 }
 
-interface ListingsData {
-  listings: Listing[];
+function pageToListing(page: any): Listing {
+  const props = page.properties;
+  return {
+    id: page.id,
+    title: props['Title']?.title?.[0]?.plain_text || '',
+    brand: props['Brand']?.rich_text?.[0]?.plain_text || '',
+    category: props['Category']?.select?.name || 'Others',
+    condition: props['Condition']?.select?.name || 'Good',
+    ageRange: props['Age Range']?.select?.name || '3-6y',
+    price: props['Price']?.number || 0,
+    pricingType: props['Pricing Type']?.select?.name || 'fixed',
+    description: props['Description']?.rich_text?.[0]?.plain_text || '',
+    originalImage: props['Original Image']?.rich_text?.[0]?.plain_text || '',
+    photos: (props['Photos']?.rich_text?.[0]?.plain_text || '').split(',').filter(Boolean),
+    seller: 'Seller',
+    location: props['Location']?.rich_text?.[0]?.plain_text || '',
+    whatsapp: props['WhatsApp']?.rich_text?.[0]?.plain_text || '6591152527',
+    archived: props['Archived']?.checkbox || false,
+    createdAt: page.created_time,
+  };
 }
 
-export function getListings(): Listing[] {
-  ensureDataFile();
-  const raw = fs.readFileSync(DATA_PATH, 'utf-8');
-  const data: ListingsData = JSON.parse(raw);
-  return data.listings;
+export async function getListings(): Promise<Listing[]> {
+  const response = await notion.databases.query({
+    database_id: DATABASE_ID,
+    sorts: [{ timestamp: 'created_time', direction: 'descending' }],
+  });
+  return response.results.map(pageToListing);
 }
 
-export function saveListings(listings: Listing[]): void {
-  ensureDataFile();
-  const data: ListingsData = { listings };
-  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), 'utf-8');
+export async function addListing(listing: Omit<Listing, 'id' | 'createdAt'>): Promise<Listing> {
+  const page = await notion.pages.create({
+    parent: { database_id: DATABASE_ID },
+    properties: {
+      'Title': { title: [{ text: { content: listing.title } }] },
+      'Brand': { rich_text: [{ text: { content: listing.brand || '' } }] },
+      'Category': { select: { name: listing.category } },
+      'Condition': { select: { name: listing.condition } },
+      'Age Range': { select: { name: listing.ageRange } },
+      'Price': { number: listing.price },
+      'Pricing Type': { select: { name: listing.pricingType } },
+      'Description': { rich_text: [{ text: { content: listing.description || '' } }] },
+      'Photos': { rich_text: [{ text: { content: listing.photos.join(',') } }] },
+      'Original Image': { rich_text: [{ text: { content: listing.originalImage || '' } }] },
+      'Location': { rich_text: [{ text: { content: listing.location || '' } }] },
+      'WhatsApp': { rich_text: [{ text: { content: listing.whatsapp || '6591152527' } }] },
+      'Archived': { checkbox: false },
+    },
+  });
+  return pageToListing(page);
 }
 
-export function addListing(listing: Listing): Listing {
-  const listings = getListings();
-  listings.unshift(listing);
-  saveListings(listings);
-  return listing;
+export async function updateListing(id: string, updates: Partial<Listing>): Promise<Listing | null> {
+  const properties: any = {};
+  if (updates.title !== undefined) properties['Title'] = { title: [{ text: { content: updates.title } }] };
+  if (updates.brand !== undefined) properties['Brand'] = { rich_text: [{ text: { content: updates.brand } }] };
+  if (updates.category !== undefined) properties['Category'] = { select: { name: updates.category } };
+  if (updates.condition !== undefined) properties['Condition'] = { select: { name: updates.condition } };
+  if (updates.ageRange !== undefined) properties['Age Range'] = { select: { name: updates.ageRange } };
+  if (updates.price !== undefined) properties['Price'] = { number: updates.price };
+  if (updates.pricingType !== undefined) properties['Pricing Type'] = { select: { name: updates.pricingType } };
+  if (updates.description !== undefined) properties['Description'] = { rich_text: [{ text: { content: updates.description } }] };
+  if (updates.photos !== undefined) properties['Photos'] = { rich_text: [{ text: { content: updates.photos.join(',') } }] };
+  if (updates.originalImage !== undefined) properties['Original Image'] = { rich_text: [{ text: { content: updates.originalImage } }] };
+  if (updates.location !== undefined) properties['Location'] = { rich_text: [{ text: { content: updates.location } }] };
+
+  const page = await notion.pages.update({ page_id: id, properties });
+  return pageToListing(page);
 }
 
-export function updateListing(id: string, updates: Partial<Listing>): Listing | null {
-  const listings = getListings();
-  const idx = listings.findIndex(l => l.id === id);
-  if (idx === -1) return null;
-  listings[idx] = { ...listings[idx], ...updates };
-  saveListings(listings);
-  return listings[idx];
-}
-
-export function archiveListing(id: string): Listing | null {
-  const listings = getListings();
-  const idx = listings.findIndex(l => l.id === id);
-  if (idx === -1) return null;
-  listings[idx].archived = !listings[idx].archived;
-  saveListings(listings);
-  return listings[idx];
+export async function archiveListing(id: string): Promise<Listing | null> {
+  const page = await notion.pages.retrieve({ page_id: id }) as any;
+  const currentArchived = page.properties['Archived']?.checkbox || false;
+  const updated = await notion.pages.update({
+    page_id: id,
+    properties: { 'Archived': { checkbox: !currentArchived } },
+  });
+  return pageToListing(updated);
 }
