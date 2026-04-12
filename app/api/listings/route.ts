@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getListings, addListing, updateListing, archiveListing } from '@/lib/listings';
+import { getListings, addListing, updateListing, archiveListing, incrementViews } from '@/lib/listings';
 
 export const maxDuration = 30;
 
@@ -43,23 +43,31 @@ export async function POST(req: NextRequest) {
     location: body.location || '',
     whatsapp: body.whatsapp || '6591152527',
     archived: false,
+    views: 0,
   });
 
   return NextResponse.json({ listing }, { status: 201 });
 }
 
-// PATCH /api/listings - update or archive
+// PATCH /api/listings - update, archive, or record view
 export async function PATCH(req: NextRequest) {
-  const pin = req.headers.get('x-seller-pin');
-  if (pin !== process.env.SELLER_PIN) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   const body = await req.json();
   const { id, action, ...updates } = body;
 
   if (!id) {
     return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+  }
+
+  // View action doesn't require auth
+  if (action === 'view') {
+    await incrementViews(id);
+    return NextResponse.json({ ok: true });
+  }
+
+  // All other actions require seller PIN
+  const pin = req.headers.get('x-seller-pin');
+  if (pin !== process.env.SELLER_PIN) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   let listing;

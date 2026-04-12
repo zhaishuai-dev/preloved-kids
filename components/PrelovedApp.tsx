@@ -46,7 +46,7 @@ interface Listing {
   id: string; title: string; brand: string; category: string; condition: string;
   ageRange: string; price: number; pricingType: string; description: string;
   originalImage: string; photos: string[]; seller: string; location: string;
-  whatsapp: string; archived: boolean; createdAt: string;
+  whatsapp: string; archived: boolean; views: number; createdAt: string;
 }
 
 /* ============ API HELPERS ============ */
@@ -140,7 +140,7 @@ function PinModal({ onSuccess, onClose }: { onSuccess: (pin: string) => void; on
 }
 
 /* ============ CARD ============ */
-function Card({ item, onClick }: { item: Listing; onClick: (item: Listing) => void }) {
+function Card({ item, onClick, isSeller }: { item: Listing; onClick: (item: Listing) => void; isSeller?: boolean }) {
   const [h, setH] = useState(false);
   const a = item.archived;
   const img = item.photos[0] || '/placeholder.png';
@@ -154,6 +154,11 @@ function Card({ item, onClick }: { item: Listing; onClick: (item: Listing) => vo
           {a ? <span style={{ background: T.archiveBg, color: T.archiveText, padding: '3px 8px', borderRadius: 14, fontSize: 11, fontWeight: 700, fontFamily: ff }}>ARCHIVED</span>
             : <PriceBadge price={item.price} pricingType={item.pricingType} />}
         </div>
+        {isSeller && item.views > 0 && (
+          <div style={{ position: 'absolute', bottom: 8, left: 8, background: 'rgba(0,0,0,0.55)', color: '#fff', padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 600, fontFamily: ff, display: 'flex', alignItems: 'center', gap: 3 }}>
+            👁 {item.views}
+          </div>
+        )}
       </div>
       <div style={{ padding: '10px 12px 12px' }}>
         <h3 style={{ fontFamily: ff, fontSize: 13, fontWeight: 700, color: a ? T.muted : T.text, margin: 0, lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{item.title}</h3>
@@ -627,7 +632,7 @@ export default function PrelovedApp({ initialListings }: { initialListings: List
         {filtered.length > 0 ? (
           <div className="masonry-grid">
             {filtered.map((item, i) => (
-              <div key={item.id} style={{ animation: `fadeUp 0.35s ease ${i * 0.06}s both` }}><Card item={item} onClick={setSelected} /></div>
+              <div key={item.id} style={{ animation: `fadeUp 0.35s ease ${i * 0.06}s both` }}><Card item={item} isSeller={isSeller} onClick={(it) => { setSelected(it); fetch('/api/listings', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: it.id, action: 'view' }) }).catch(() => {}); }} /></div>
             ))}
           </div>
         ) : (

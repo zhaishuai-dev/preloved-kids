@@ -21,6 +21,7 @@ export interface Listing {
   location: string;
   whatsapp: string;
   archived: boolean;
+  views: number;
   createdAt: string;
 }
 
@@ -41,6 +42,7 @@ function rowToListing(row: any): Listing {
     location: row.location || '',
     whatsapp: row.whatsapp || '6591152527',
     archived: row.archived || false,
+    views: row.views || 0,
     createdAt: row.created_at,
   };
 }
@@ -72,6 +74,7 @@ export async function addListing(listing: Omit<Listing, 'id' | 'createdAt'>): Pr
       location: listing.location,
       whatsapp: listing.whatsapp,
       archived: false,
+      views: 0,
     })
     .select()
     .single();
@@ -101,6 +104,18 @@ export async function updateListing(id: string, updates: Partial<Listing>): Prom
     .single();
   if (error) throw error;
   return rowToListing(data);
+}
+
+export async function incrementViews(id: string): Promise<void> {
+  const { data: current } = await supabase
+    .from('listings')
+    .select('views')
+    .eq('id', id)
+    .single();
+  await supabase
+    .from('listings')
+    .update({ views: (current?.views || 0) + 1 })
+    .eq('id', id);
 }
 
 export async function archiveListing(id: string): Promise<Listing | null> {
