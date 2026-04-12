@@ -5,13 +5,26 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 const CATEGORIES = ['All', 'Toys', 'Books', 'Clothes', 'Shoes', 'Gear', 'Others'];
 
 const SHOE_SIZE_CHART = [
-  { age: '0-3m', eu: '15-16', uk: '0-0.5', cm: '9-10' },
-  { age: '3-6m', eu: '17', uk: '1-1.5', cm: '10.5-11' },
-  { age: '6-12m', eu: '18-19', uk: '2-3', cm: '11.5-12' },
-  { age: '1-2y', eu: '20-22', uk: '3.5-5', cm: '12.5-13.5' },
-  { age: '2-3y', eu: '23-25', uk: '6-7.5', cm: '14-15.5' },
-  { age: '3-5y', eu: '26-28', uk: '8-10', cm: '16-17.5' },
-  { age: '5-7y', eu: '29-31', uk: '10.5-12', cm: '18-19.5' },
+  { age: '0-3m', eu: '15', uk: '0', cm: '9.0' },
+  { age: '0-3m', eu: '16', uk: '0.5', cm: '9.5' },
+  { age: '3-6m', eu: '17', uk: '1', cm: '10.0' },
+  { age: '3-6m', eu: '18', uk: '2', cm: '10.5' },
+  { age: '6-9m', eu: '19', uk: '3', cm: '11.0' },
+  { age: '9-12m', eu: '20', uk: '3.5', cm: '11.5' },
+  { age: '12-15m', eu: '21', uk: '4.5', cm: '12.5' },
+  { age: '15-18m', eu: '22', uk: '5', cm: '13.0' },
+  { age: '18-21m', eu: '23', uk: '6', cm: '13.5' },
+  { age: '21-24m', eu: '24', uk: '7', cm: '14.5' },
+  { age: '2-2.5y', eu: '25', uk: '7.5', cm: '15.0' },
+  { age: '2.5-3y', eu: '26', uk: '8.5', cm: '15.5' },
+  { age: '3-3.5y', eu: '27', uk: '9', cm: '16.0' },
+  { age: '3.5-4y', eu: '28', uk: '10', cm: '17.0' },
+  { age: '4-4.5y', eu: '29', uk: '11', cm: '17.5' },
+  { age: '4.5-5y', eu: '30', uk: '11.5', cm: '18.0' },
+  { age: '5-5.5y', eu: '31', uk: '12.5', cm: '18.5' },
+  { age: '5.5-6y', eu: '32', uk: '13', cm: '19.5' },
+  { age: '6-7y', eu: '33', uk: '1Y', cm: '20.0' },
+  { age: '7-8y', eu: '34', uk: '2Y', cm: '21.0' },
 ];
 const COLLECTION_POINTS = ['Holland Village (Condo Residence)', 'Kent Ridge MRT', 'Delivery (with Grab Fee)'];
 
