@@ -442,6 +442,14 @@ export default function PrelovedApp({ initialListings }: { initialListings: List
   const [sellerPin, setSellerPin] = useState('');
   const [showPin, setShowPin] = useState(false);
 
+  // Always fetch fresh data on mount to bypass any SSR/CDN cache
+  useEffect(() => {
+    fetch('/api/listings?archived=false')
+      .then(r => r.json())
+      .then(d => { if (d.listings) setListings(d.listings); })
+      .catch(() => {});
+  }, []);
+
   const filtered = listings.filter(item => {
     if (viewMode === 'active' && item.archived) return false;
     if (viewMode === 'archived' && !item.archived) return false;

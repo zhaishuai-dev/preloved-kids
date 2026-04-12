@@ -15,7 +15,9 @@ export async function GET(req: NextRequest) {
     listings = listings.filter((l) => !l.archived);
   }
 
-  return NextResponse.json({ listings });
+  return NextResponse.json({ listings }, {
+    headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0' },
+  });
 }
 
 // POST /api/listings - create new listing
