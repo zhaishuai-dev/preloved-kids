@@ -361,21 +361,51 @@ function ListingForm({ initialForm, existingPhotos, onSave, onClose, isEdit, pin
 }
 
 /* ============ DETAIL MODAL ============ */
+function PhotoCarousel({ photos, archived }: { photos: string[]; archived: boolean }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const imgs = photos.length > 0 ? photos : ['/placeholder.png'];
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const idx = Math.round(el.scrollLeft / el.clientWidth);
+    setActiveIdx(idx);
+  }, []);
+
+  return (
+    <div style={{ position: 'relative', background: T.tag, borderRadius: '18px 18px 0 0', overflow: 'hidden' }}>
+      <div ref={scrollRef} onScroll={handleScroll} className="photo-carousel"
+        style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
+        {imgs.map((src, i) => (
+          <img key={i} src={src} alt="" style={{ width: '100%', height: 320, objectFit: 'contain', background: T.tag, flexShrink: 0, scrollSnapAlign: 'center', filter: archived ? 'grayscale(30%)' : 'none' }} />
+        ))}
+      </div>
+      {imgs.length > 1 && (
+        <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>
+          {imgs.map((_, i) => (
+            <div key={i} style={{ width: activeIdx === i ? 16 : 6, height: 6, borderRadius: 3, background: activeIdx === i ? '#fff' : 'rgba(255,255,255,0.5)', transition: 'all 0.25s ease' }} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DetailModal({ item, onClose, onEdit, onArchive, isSeller }: {
   item: Listing; onClose: () => void; onEdit: (item: Listing) => void;
   onArchive: (id: string) => void; isSeller: boolean;
 }) {
   const a = item.archived;
-  const img = item.photos[0] || '/placeholder.png';
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(30,27,24,0.55)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
       <div onClick={e => e.stopPropagation()} style={{ background: T.bg, borderRadius: 18, maxWidth: 520, width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 64px rgba(0,0,0,0.22)' }}>
         <div style={{ flex: 1, overflow: 'auto', borderRadius: '18px 18px 0 0' }}>
           <div style={{ position: 'relative' }}>
-            <img src={img} alt="" style={{ width: '100%', height: 300, objectFit: 'contain', background: T.tag, borderRadius: '18px 18px 0 0', filter: a ? 'grayscale(30%)' : 'none' }} />
-            <button onClick={onClose} style={{ position: 'absolute', top: 12, right: 12, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
-            {isSeller && <button onClick={e => { e.stopPropagation(); onEdit(item); }} style={{ position: 'absolute', top: 12, right: 54, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✏️</button>}
-            <div style={{ position: 'absolute', bottom: 12, left: 12 }}>
+            <PhotoCarousel photos={item.photos} archived={a} />
+            <button onClick={onClose} style={{ position: 'absolute', top: 12, right: 12, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>×</button>
+            {isSeller && <button onClick={e => { e.stopPropagation(); onEdit(item); }} style={{ position: 'absolute', top: 12, right: 54, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>✏️</button>}
+            <div style={{ position: 'absolute', bottom: item.photos.length > 1 ? 30 : 12, left: 12, zIndex: 2 }}>
               {a ? <span style={{ background: T.archiveBg, color: T.archiveText, padding: '4px 11px', borderRadius: 20, fontSize: 12.5, fontWeight: 700, fontFamily: ff }}>ARCHIVED</span>
                 : <PriceBadge price={item.price} pricingType={item.pricingType} />}
             </div>
