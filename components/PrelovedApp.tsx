@@ -2,7 +2,17 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 
-const CATEGORIES = ['All', 'Toys', 'Books', 'Clothes', 'Gear', 'Others'];
+const CATEGORIES = ['All', 'Toys', 'Books', 'Clothes', 'Shoes', 'Gear', 'Others'];
+
+const SHOE_SIZE_CHART = [
+  { age: '0-3m', eu: '15-16', uk: '0-0.5', cm: '9-10' },
+  { age: '3-6m', eu: '17', uk: '1-1.5', cm: '10.5-11' },
+  { age: '6-12m', eu: '18-19', uk: '2-3', cm: '11.5-12' },
+  { age: '1-2y', eu: '20-22', uk: '3.5-5', cm: '12.5-13.5' },
+  { age: '2-3y', eu: '23-25', uk: '6-7.5', cm: '14-15.5' },
+  { age: '3-5y', eu: '26-28', uk: '8-10', cm: '16-17.5' },
+  { age: '5-7y', eu: '29-31', uk: '10.5-12', cm: '18-19.5' },
+];
 const COLLECTION_POINTS = ['Holland Village (Condo Residence)', 'Kent Ridge MRT', 'Delivery (with Grab Fee)'];
 
 const T = {
@@ -397,6 +407,8 @@ function DetailModal({ item, onClose, onEdit, onArchive, isSeller }: {
   onArchive: (id: string) => void; isSeller: boolean;
 }) {
   const a = item.archived;
+  const [showSizeChart, setShowSizeChart] = useState(false);
+  const isShoes = item.category === 'Shoes';
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(30,27,24,0.55)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
       <div onClick={e => e.stopPropagation()} style={{ background: T.bg, borderRadius: 18, maxWidth: 520, width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 64px rgba(0,0,0,0.22)' }}>
@@ -428,6 +440,38 @@ function DetailModal({ item, onClose, onEdit, onArchive, isSeller }: {
               </div>
             )}
             <p style={{ fontFamily: ff, fontSize: 14, color: T.textSec, lineHeight: 1.7, marginTop: 16 }}>{item.description}</p>
+            {isShoes && (
+              <div style={{ marginTop: 14 }}>
+                <button onClick={() => setShowSizeChart(!showSizeChart)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, background: T.accentLight, border: `1px solid ${T.accent}33`, borderRadius: 10, padding: '8px 14px', cursor: 'pointer', fontFamily: ff, fontSize: 13, fontWeight: 600, color: T.accent, width: '100%', justifyContent: 'center' }}>
+                  👟 Baby Shoe Size Chart <span style={{ fontSize: 11, transition: 'transform 0.2s', transform: showSizeChart ? 'rotate(180deg)' : 'none' }}>▼</span>
+                </button>
+                {showSizeChart && (
+                  <div style={{ marginTop: 8, borderRadius: 10, overflow: 'hidden', border: `1px solid ${T.border}`, animation: 'fadeUp 0.2s ease' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: ff, fontSize: 12 }}>
+                      <thead>
+                        <tr style={{ background: T.tag }}>
+                          <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: T.textSec }}>Age</th>
+                          <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: T.textSec }}>EU</th>
+                          <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: T.textSec }}>UK</th>
+                          <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: T.textSec }}>cm</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {SHOE_SIZE_CHART.map((row, i) => (
+                          <tr key={i} style={{ background: i % 2 ? T.tag + '66' : '#fff', borderTop: `1px solid ${T.border}` }}>
+                            <td style={{ padding: '7px 10px', fontWeight: 600, color: T.text }}>{row.age}</td>
+                            <td style={{ padding: '7px 10px', textAlign: 'center', color: T.textSec }}>{row.eu}</td>
+                            <td style={{ padding: '7px 10px', textAlign: 'center', color: T.textSec }}>{row.uk}</td>
+                            <td style={{ padding: '7px 10px', textAlign: 'center', color: T.textSec }}>{row.cm}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
             {item.location && (
               <div style={{ marginTop: 14 }}>
                 <p style={{ fontFamily: ff, fontSize: 12, fontWeight: 700, color: T.muted, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>📍 Collection / Delivery</p>
