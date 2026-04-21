@@ -29,13 +29,13 @@ const SHOE_SIZE_CHART = [
 const COLLECTION_POINTS = ['Holland Village (Condo Residence)', 'Kent Ridge MRT', 'Delivery (with Grab Fee)'];
 
 const T = {
-  bg: '#FBF7F2', card: '#FFFFFF', accent: '#D4603A', accentLight: '#FDEEE8',
+  bg: '#FAFAF8', card: '#FFFFFF', accent: '#D4603A', accentLight: '#FEF0EB',
   green: '#1D7A50', greenLight: '#E3F3EA',
-  text: '#1E1B18', textSec: '#4A4540', muted: '#7D766F',
-  border: '#E4DDD5', tag: '#EFEBE5', cardBorder: '#E8E2DA',
-  shadow: '0 1px 4px rgba(30,27,24,0.07), 0 4px 14px rgba(30,27,24,0.05)',
-  shadowH: '0 4px 12px rgba(30,27,24,0.1), 0 10px 28px rgba(30,27,24,0.08)',
-  headerBg: '#F5EFE7', red: '#C0392B', redLight: '#FDECEB',
+  text: '#1A1A1A', textSec: '#555555', muted: '#999999',
+  border: '#EEEEEE', tag: '#F5F5F3', cardBorder: '#F0F0EE',
+  shadow: '0 1px 6px rgba(0,0,0,0.04)',
+  shadowH: '0 4px 16px rgba(0,0,0,0.08)',
+  headerBg: '#FFFFFF', red: '#E53935', redLight: '#FDECEB',
   archiveBg: '#F0EDE8', archiveText: '#9E9890',
   sellerBadge: '#4A6741', sellerBadgeBg: '#E8F0E6',
 };
@@ -63,18 +63,23 @@ async function uploadAndAnalyze(base64: string, mediaType: string, pin: string, 
 }
 
 /* ============ SHARED COMPONENTS ============ */
-function PriceBadge({ price, pricingType }: { price: number; pricingType: string }) {
-  const cfg = pricingType === 'free' ? { bg: T.greenLight, color: T.green, label: 'FREE' }
-    : pricingType === 'paywhatyouwant' ? { bg: T.accentLight, color: T.accent, label: 'Pay What You Want' }
-    : { bg: T.accentLight, color: T.accent, label: `$${price}` };
-  return <span style={{ background: cfg.bg, color: cfg.color, padding: '4px 11px', borderRadius: 20, fontSize: 12.5, fontWeight: 700, fontFamily: ff }}>{cfg.label}</span>;
+function PriceBadge({ price, pricingType, size = 'normal' }: { price: number; pricingType: string; size?: 'normal' | 'large' }) {
+  const isLarge = size === 'large';
+  if (pricingType === 'free') {
+    return <span style={{ color: T.green, fontSize: isLarge ? 18 : 13, fontWeight: 700, fontFamily: ff }}>FREE</span>;
+  }
+  if (pricingType === 'paywhatyouwant') {
+    return <span style={{ color: T.accent, fontSize: isLarge ? 14 : 11, fontWeight: 600, fontFamily: ff }}>Pay What You Want</span>;
+  }
+  return <span style={{ color: T.accent, fontSize: isLarge ? 20 : 15, fontWeight: 700, fontFamily: ff }}>${price}</span>;
 }
+
 function ConditionDot({ condition }: { condition: string }) {
   const c: Record<string, string> = { 'Like New': T.green, Good: '#B8860B', Fair: '#C05A30' };
-  return <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: T.textSec, fontWeight: 500, fontFamily: ff }}><span style={{ width: 7, height: 7, borderRadius: '50%', background: c[condition] || '#999' }} />{condition}</span>;
+  return <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: T.textSec, fontWeight: 500, fontFamily: ff }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: c[condition] || '#999' }} />{condition}</span>;
 }
-function Tag({ children }: { children: React.ReactNode }) { return <span style={{ background: T.tag, color: T.muted, padding: '3px 9px', borderRadius: 6, fontSize: 11, fontWeight: 600, fontFamily: ff }}>{children}</span>; }
-function BrandTag({ brand }: { brand: string }) { if (!brand) return null; return <span style={{ background: '#EDE7F6', color: '#5E35B1', padding: '3px 9px', borderRadius: 6, fontSize: 11, fontWeight: 600, fontFamily: ff }}>{brand}</span>; }
+function Tag({ children }: { children: React.ReactNode }) { return <span style={{ color: T.muted, fontSize: 11, fontWeight: 500, fontFamily: ff }}>{children}</span>; }
+function BrandTag({ brand }: { brand: string }) { if (!brand) return null; return <span style={{ color: '#7C6BC4', fontSize: 11, fontWeight: 600, fontFamily: ff }}>{brand}</span>; }
 
 /* ============ PIN MODAL ============ */
 function PinModal({ onSuccess, onClose }: { onSuccess: (pin: string) => void; onClose: () => void }) {
@@ -104,8 +109,8 @@ function PinModal({ onSuccess, onClose }: { onSuccess: (pin: string) => void; on
   };
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(30,27,24,0.55)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: 16 }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: T.bg, borderRadius: 18, maxWidth: 340, width: '100%', padding: '32px 28px', boxShadow: '0 24px 64px rgba(0,0,0,0.22)', textAlign: 'center', animation: shake ? 'shakeX 0.4s ease' : 'none' }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: 16 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 24, maxWidth: 340, width: '100%', padding: '36px 28px', boxShadow: '0 24px 64px rgba(0,0,0,0.15)', textAlign: 'center', animation: shake ? 'shakeX 0.4s ease' : 'none' }}>
         <input ref={inputRef} type="tel" inputMode="numeric" maxLength={4} value={pin}
           onChange={e => {
             const val = e.target.value.replace(/\D/g, '').slice(0, 4);
@@ -115,10 +120,10 @@ function PinModal({ onSuccess, onClose }: { onSuccess: (pin: string) => void; on
           style={{ position: 'absolute', opacity: 0, width: 1, height: 1, pointerEvents: 'none' }} />
         <div style={{ fontSize: 36, marginBottom: 12 }}>🔐</div>
         <h3 style={{ fontFamily: df, fontSize: 20, fontWeight: 700, color: T.text, margin: '0 0 6px' }}>Seller Mode</h3>
-        <p style={{ fontFamily: ff, fontSize: 13, color: T.muted, margin: '0 0 20px' }}>Enter your PIN to manage listings</p>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 16 }} onClick={() => inputRef.current?.focus()}>
+        <p style={{ fontFamily: ff, fontSize: 13, color: T.muted, margin: '0 0 24px' }}>Enter your PIN to manage listings</p>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 20 }} onClick={() => inputRef.current?.focus()}>
           {[0,1,2,3].map(i => (
-            <div key={i} style={{ width: 44, height: 52, borderRadius: 10, border: `2px solid ${error ? T.red : pin.length > i ? T.accent : T.border}`, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 700, fontFamily: ff, color: T.text }}>{pin[i] ? '•' : ''}</div>
+            <div key={i} style={{ width: 48, height: 56, borderRadius: 14, border: `2px solid ${error ? T.red : pin.length > i ? T.accent : T.border}`, background: '#FAFAF8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 700, fontFamily: ff, color: T.text, transition: 'border-color 0.2s' }}>{pin[i] ? '•' : ''}</div>
           ))}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, maxWidth: 220, margin: '0 auto' }}>
@@ -128,12 +133,12 @@ function PinModal({ onSuccess, onClose }: { onSuccess: (pin: string) => void; on
               if (n === '⌫') { setPin(p => { setError(false); return p.slice(0, -1); }); }
               else { handleDigit(String(n)); }
               inputRef.current?.focus();
-            }} style={{ width: '100%', height: 44, borderRadius: 10, border: `1px solid ${T.border}`, background: T.card, fontFamily: ff, fontSize: n === '⌫' ? 18 : 17, fontWeight: 600, color: T.text, cursor: 'pointer' }}>{n}</button>
+            }} style={{ width: '100%', height: 46, borderRadius: 12, border: 'none', background: T.tag, fontFamily: ff, fontSize: n === '⌫' ? 18 : 17, fontWeight: 600, color: T.text, cursor: 'pointer', transition: 'background 0.15s' }}>{n}</button>
           ))}
         </div>
-        {error && <p style={{ fontFamily: ff, fontSize: 13, color: T.red, marginTop: 12, fontWeight: 500 }}>Wrong PIN. Try again.</p>}
-        {loading && <p style={{ fontFamily: ff, fontSize: 13, color: T.muted, marginTop: 12 }}>Verifying...</p>}
-        <button onClick={onClose} style={{ marginTop: 16, background: 'none', border: 'none', fontFamily: ff, fontSize: 13, color: T.muted, cursor: 'pointer', fontWeight: 500 }}>Cancel</button>
+        {error && <p style={{ fontFamily: ff, fontSize: 13, color: T.red, marginTop: 14, fontWeight: 500 }}>Wrong PIN. Try again.</p>}
+        {loading && <p style={{ fontFamily: ff, fontSize: 13, color: T.muted, marginTop: 14 }}>Verifying...</p>}
+        <button onClick={onClose} style={{ marginTop: 18, background: 'none', border: 'none', fontFamily: ff, fontSize: 13, color: T.muted, cursor: 'pointer', fontWeight: 500 }}>Cancel</button>
       </div>
     </div>
   );
@@ -146,24 +151,31 @@ function Card({ item, onClick, isSeller }: { item: Listing; onClick: (item: List
   const img = item.photos[0] || '/placeholder.png';
   return (
     <div onClick={() => onClick(item)} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
-      style={{ background: T.card, borderRadius: 12, overflow: 'hidden', cursor: 'pointer', boxShadow: h ? T.shadowH : T.shadow, transform: h ? 'translateY(-2px)' : 'none', transition: 'all 0.25s ease', border: `1px solid ${h ? T.border : T.cardBorder}`, opacity: a ? 0.7 : 1, breakInside: 'avoid' as const }}>
-      <div style={{ position: 'relative', background: T.tag, overflow: 'hidden' }}>
+      style={{ background: T.card, borderRadius: 16, overflow: 'hidden', cursor: 'pointer', boxShadow: h ? T.shadowH : T.shadow, transform: h ? 'translateY(-2px)' : 'none', transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)', opacity: a ? 0.65 : 1, breakInside: 'avoid' as const }}>
+      <div style={{ position: 'relative', overflow: 'hidden' }}>
         <img src={img} alt={item.title}
-          style={{ display: 'block', width: '100%', height: 'auto', minHeight: 120, objectFit: 'cover', transition: 'transform 0.3s', transform: h ? 'scale(1.03)' : 'scale(1)', filter: a ? 'grayscale(40%)' : 'none' }} />
-        <div style={{ position: 'absolute', top: 8, right: 8 }}>
-          {a ? <span style={{ background: T.archiveBg, color: T.archiveText, padding: '3px 8px', borderRadius: 14, fontSize: 11, fontWeight: 700, fontFamily: ff }}>ARCHIVED</span>
-            : <PriceBadge price={item.price} pricingType={item.pricingType} />}
-        </div>
+          style={{ display: 'block', width: '100%', height: 'auto', minHeight: 120, objectFit: 'cover', transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)', transform: h ? 'scale(1.04)' : 'scale(1)', filter: a ? 'grayscale(40%)' : 'none' }} />
+        {a && (
+          <div style={{ position: 'absolute', top: 8, right: 8 }}>
+            <span style={{ background: 'rgba(0,0,0,0.5)', color: '#fff', padding: '3px 8px', borderRadius: 10, fontSize: 10, fontWeight: 700, fontFamily: ff, letterSpacing: '0.03em' }}>ARCHIVED</span>
+          </div>
+        )}
         {isSeller && item.views > 0 && (
-          <div style={{ position: 'absolute', bottom: 8, left: 8, background: 'rgba(0,0,0,0.55)', color: '#fff', padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 600, fontFamily: ff, display: 'flex', alignItems: 'center', gap: 3 }}>
+          <div style={{ position: 'absolute', bottom: 8, left: 8, background: 'rgba(0,0,0,0.5)', color: '#fff', padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 600, fontFamily: ff, display: 'flex', alignItems: 'center', gap: 3, backdropFilter: 'blur(4px)' }}>
             👁 {item.views}
           </div>
         )}
       </div>
-      <div style={{ padding: '10px 12px 12px' }}>
-        <h3 style={{ fontFamily: ff, fontSize: 13, fontWeight: 700, color: a ? T.muted : T.text, margin: 0, lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{item.title}</h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 6, flexWrap: 'wrap' }}>
-          <ConditionDot condition={item.condition} /><BrandTag brand={item.brand} /><Tag>{item.ageRange}</Tag>
+      <div style={{ padding: '10px 12px 14px' }}>
+        <h3 style={{ fontFamily: ff, fontSize: 14, fontWeight: 600, color: a ? T.muted : T.text, margin: 0, lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{item.title}</h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+          {!a && <PriceBadge price={item.price} pricingType={item.pricingType} />}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6, flexWrap: 'wrap' }}>
+          <ConditionDot condition={item.condition} />
+          {item.brand && <><span style={{ color: T.border, fontSize: 10 }}>·</span><BrandTag brand={item.brand} /></>}
+          <span style={{ color: T.border, fontSize: 10 }}>·</span>
+          <Tag>{item.ageRange}</Tag>
         </div>
       </div>
     </div>
@@ -186,7 +198,7 @@ function ListingForm({ initialForm, existingPhotos, onSave, onClose, isEdit, pin
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const inp: React.CSSProperties = { display: 'block', width: '100%', marginTop: 5, padding: '10px 12px', borderRadius: 9, border: `1.5px solid ${T.border}`, background: '#fff', fontFamily: ff, fontSize: 14, color: T.text, outline: 'none', boxSizing: 'border-box', fontWeight: 500 };
+  const inp: React.CSSProperties = { display: 'block', width: '100%', marginTop: 6, padding: '11px 14px', borderRadius: 12, border: `1.5px solid ${T.border}`, background: '#fff', fontFamily: ff, fontSize: 14, color: T.text, outline: 'none', boxSizing: 'border-box', fontWeight: 500 };
 
   const compressImage = useCallback((file: File, maxW = 1200, maxH = 1200, quality = 0.82): Promise<{ base64: string; mediaType: string }> => {
     return new Promise((resolve, reject) => {
@@ -259,7 +271,6 @@ function ListingForm({ initialForm, existingPhotos, onSave, onClose, isEdit, pin
   };
 
   const uploadRemainingPhotos = async (): Promise<string[]> => {
-    // Build a mutable copy of current URLs so we capture uploads in this call
     const urls = [...uploadedUrls];
     for (let i = 0; i < localPhotos.length; i++) {
       const p = localPhotos[i];
@@ -287,45 +298,45 @@ function ListingForm({ initialForm, existingPhotos, onSave, onClose, isEdit, pin
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(30,27,24,0.55)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: T.bg, borderRadius: 18, maxWidth: 500, width: '100%', maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.22)' }}>
-        <div style={{ padding: '20px 24px', borderBottom: `1.5px solid ${T.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 24, maxWidth: 500, width: '100%', maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }}>
+        <div style={{ padding: '20px 24px', borderBottom: `1px solid ${T.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ fontFamily: df, fontSize: 20, fontWeight: 700, color: T.text, margin: 0 }}>
             {isEdit ? '✏️ Edit Listing' : step === 0 ? '📸 Upload Photos' : step === 1 ? '✨ AI Analyzing...' : '📝 Review Listing'}
           </h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, color: T.muted, cursor: 'pointer', fontWeight: 700 }}>×</button>
+          <button onClick={onClose} style={{ background: T.tag, border: 'none', width: 32, height: 32, borderRadius: '50%', fontSize: 16, color: T.muted, cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
         </div>
         <div style={{ padding: '20px 24px 28px' }}>
           {step === 0 && (
             <div>
               <div onDragOver={e => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)} onDrop={handleDrop} onClick={() => fileRef.current?.click()}
-                style={{ border: `2px dashed ${dragOver ? T.accent : T.border}`, borderRadius: 14, padding: localPhotos.length > 0 ? '16px' : '40px 20px', textAlign: 'center', cursor: 'pointer', background: dragOver ? T.accentLight : 'transparent' }}>
+                style={{ border: `2px dashed ${dragOver ? T.accent : T.border}`, borderRadius: 16, padding: localPhotos.length > 0 ? '16px' : '44px 20px', textAlign: 'center', cursor: 'pointer', background: dragOver ? T.accentLight : T.tag, transition: 'all 0.2s' }}>
                 {localPhotos.length === 0 ? (
-                  <><div style={{ fontSize: 48, marginBottom: 12 }}>📸</div><p style={{ fontFamily: ff, fontSize: 15, fontWeight: 600, color: T.text, margin: '0 0 4px' }}>Drag & drop photos</p><p style={{ fontFamily: ff, fontSize: 13, color: T.muted, margin: '0 0 16px' }}>or tap to select · up to 5</p><span style={{ display: 'inline-block', padding: '8px 20px', borderRadius: 8, background: T.tag, fontFamily: ff, fontSize: 13, fontWeight: 600, color: T.textSec }}>Choose Files</span></>
+                  <><div style={{ fontSize: 48, marginBottom: 12 }}>📸</div><p style={{ fontFamily: ff, fontSize: 15, fontWeight: 600, color: T.text, margin: '0 0 4px' }}>Drag & drop photos</p><p style={{ fontFamily: ff, fontSize: 13, color: T.muted, margin: '0 0 16px' }}>or tap to select · up to 5</p><span style={{ display: 'inline-block', padding: '8px 20px', borderRadius: 20, background: '#fff', fontFamily: ff, fontSize: 13, fontWeight: 600, color: T.textSec, border: `1px solid ${T.border}` }}>Choose Files</span></>
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(localPhotos.length + 1, 3)}, 1fr)`, gap: 10 }}>
                     {localPhotos.map((p, i) => (
-                      <div key={i} style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', aspectRatio: '4/3' }}>
+                      <div key={i} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', aspectRatio: '4/3' }}>
                         <img src={p.preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         <button onClick={e => { e.stopPropagation(); removePhoto(i); }} style={{ position: 'absolute', top: 4, right: 4, width: 22, height: 22, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
                         {i === 0 && <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.5)', color: '#fff', fontSize: 10, fontWeight: 700, textAlign: 'center', padding: '2px 0', fontFamily: ff }}>MAIN</div>}
                       </div>
                     ))}
-                    {localPhotos.length < 5 && <div style={{ borderRadius: 10, border: `2px dashed ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', aspectRatio: '4/3', fontSize: 28, color: T.muted }}>+</div>}
+                    {localPhotos.length < 5 && <div style={{ borderRadius: 12, border: `2px dashed ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', aspectRatio: '4/3', fontSize: 28, color: T.muted }}>+</div>}
                   </div>
                 )}
                 <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" multiple style={{ display: 'none' }} onChange={e => { if (e.target.files?.length) processFiles(e.target.files); }} />
               </div>
-              {error && <div style={{ marginTop: 12, padding: '8px 12px', borderRadius: 8, background: T.redLight, color: T.red, fontFamily: ff, fontSize: 13, fontWeight: 500 }}>⚠️ {error}</div>}
+              {error && <div style={{ marginTop: 12, padding: '10px 14px', borderRadius: 12, background: T.redLight, color: T.red, fontFamily: ff, fontSize: 13, fontWeight: 500 }}>⚠️ {error}</div>}
               <div style={{ marginTop: 16, display: 'flex', gap: 10 }}>
-                <button onClick={runAI} disabled={!localPhotos.length} style={{ flex: 1, padding: '13px 0', borderRadius: 12, border: 'none', background: localPhotos.length ? T.accent : T.tag, color: localPhotos.length ? '#fff' : T.muted, fontFamily: ff, fontWeight: 700, fontSize: 15, cursor: localPhotos.length ? 'pointer' : 'default', boxShadow: localPhotos.length ? '0 3px 10px rgba(212,96,58,0.3)' : 'none' }}>✨ Auto-fill with AI</button>
-                <button onClick={() => setStep(2)} disabled={!localPhotos.length} style={{ padding: '13px 20px', borderRadius: 12, border: `1.5px solid ${localPhotos.length ? T.border : T.tag}`, background: 'transparent', color: localPhotos.length ? T.textSec : T.muted, fontFamily: ff, fontWeight: 600, fontSize: 14, cursor: localPhotos.length ? 'pointer' : 'default' }}>Manual</button>
+                <button onClick={runAI} disabled={!localPhotos.length} style={{ flex: 1, padding: '14px 0', borderRadius: 14, border: 'none', background: localPhotos.length ? T.accent : T.tag, color: localPhotos.length ? '#fff' : T.muted, fontFamily: ff, fontWeight: 700, fontSize: 15, cursor: localPhotos.length ? 'pointer' : 'default', boxShadow: localPhotos.length ? '0 4px 14px rgba(212,96,58,0.25)' : 'none', transition: 'all 0.2s' }}>✨ Auto-fill with AI</button>
+                <button onClick={() => setStep(2)} disabled={!localPhotos.length} style={{ padding: '14px 20px', borderRadius: 14, border: `1.5px solid ${localPhotos.length ? T.border : T.tag}`, background: 'transparent', color: localPhotos.length ? T.textSec : T.muted, fontFamily: ff, fontWeight: 600, fontSize: 14, cursor: localPhotos.length ? 'pointer' : 'default', transition: 'all 0.2s' }}>Manual</button>
               </div>
             </div>
           )}
           {step === 1 && (
             <div style={{ textAlign: 'center', padding: '30px 0' }}>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 24 }}>{localPhotos.slice(0, 3).map((p, i) => <img key={i} src={p.preview} alt="" style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 10, border: `2px solid ${T.border}` }} />)}</div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 24 }}>{localPhotos.slice(0, 3).map((p, i) => <img key={i} src={p.preview} alt="" style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 12, border: `2px solid ${T.border}` }} />)}</div>
               <div style={{ width: 44, height: 44, border: `3px solid ${T.tag}`, borderTopColor: T.accent, borderRadius: '50%', margin: '0 auto 16px', animation: 'spin 0.8s linear infinite' }} />
               <p style={{ fontFamily: ff, fontSize: 15, fontWeight: 600, color: T.text }}>{aiStatus}</p>
               <p style={{ fontFamily: ff, fontSize: 13, color: T.muted, marginTop: 4 }}>5-15 seconds</p>
@@ -334,15 +345,15 @@ function ListingForm({ initialForm, existingPhotos, onSave, onClose, isEdit, pin
           {step === 2 && (
             <div>
               {localPhotos.length > 0 && (
-                <div style={{ display: 'flex', gap: 8, marginBottom: 14, overflowX: 'auto', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 16, overflowX: 'auto', alignItems: 'center' }}>
                   {localPhotos.map((p, i) => (
-                    <div key={i} style={{ position: 'relative', flexShrink: 0 }}><img src={p.preview} alt="" style={{ width: 64, height: 48, objectFit: 'cover', borderRadius: 8, border: `1.5px solid ${T.border}` }} /><button onClick={() => removePhoto(i)} style={{ position: 'absolute', top: -6, right: -6, width: 18, height: 18, borderRadius: '50%', background: T.red, color: '#fff', border: 'none', cursor: 'pointer', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button></div>
+                    <div key={i} style={{ position: 'relative', flexShrink: 0 }}><img src={p.preview} alt="" style={{ width: 64, height: 48, objectFit: 'cover', borderRadius: 10, border: `1.5px solid ${T.border}` }} /><button onClick={() => removePhoto(i)} style={{ position: 'absolute', top: -6, right: -6, width: 18, height: 18, borderRadius: '50%', background: T.red, color: '#fff', border: 'none', cursor: 'pointer', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button></div>
                   ))}
-                  {localPhotos.length < 5 && <button onClick={() => setStep(0)} style={{ width: 64, height: 48, borderRadius: 8, border: `2px dashed ${T.border}`, background: 'transparent', cursor: 'pointer', fontSize: 20, color: T.muted, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>}
+                  {localPhotos.length < 5 && <button onClick={() => setStep(0)} style={{ width: 64, height: 48, borderRadius: 10, border: `2px dashed ${T.border}`, background: 'transparent', cursor: 'pointer', fontSize: 20, color: T.muted, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>}
                 </div>
               )}
-              {!isEdit && form.title && !error && <div style={{ background: T.greenLight, borderRadius: 10, padding: '10px 14px', marginBottom: 16, fontFamily: ff, fontSize: 13, color: T.green, fontWeight: 600 }}>✅ AI filled in details — review and adjust</div>}
-              {error && <div style={{ background: '#FFF3E0', borderRadius: 10, padding: '10px 14px', marginBottom: 16, fontFamily: ff, fontSize: 13, color: '#E65100', fontWeight: 500 }}>⚠️ {error}</div>}
+              {!isEdit && form.title && !error && <div style={{ background: T.greenLight, borderRadius: 12, padding: '10px 14px', marginBottom: 16, fontFamily: ff, fontSize: 13, color: T.green, fontWeight: 600 }}>✅ AI filled in details — review and adjust</div>}
+              {error && <div style={{ background: '#FFF3E0', borderRadius: 12, padding: '10px 14px', marginBottom: 16, fontFamily: ff, fontSize: 13, color: '#E65100', fontWeight: 500 }}>⚠️ {error}</div>}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <label style={{ fontFamily: ff, fontSize: 13, fontWeight: 700, color: T.textSec }}>Title *<input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={inp} placeholder="e.g. LEGO Duplo Fire Station" /></label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -368,15 +379,15 @@ function ListingForm({ initialForm, existingPhotos, onSave, onClose, isEdit, pin
                           const current = (form.location || '').split(',').map((s: string) => s.trim()).filter(Boolean);
                           const next = selected ? current.filter((x: string) => x !== pt) : [...current, pt];
                           setForm({ ...form, location: next.join(', ') });
-                        }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10, border: `1.5px solid ${selected ? T.accent : T.border}`, background: selected ? T.accentLight : '#fff', cursor: 'pointer', fontFamily: ff, fontSize: 14, fontWeight: selected ? 600 : 500, color: selected ? T.accent : T.textSec, userSelect: 'none' }}>
-                          <span style={{ width: 18, height: 18, borderRadius: 5, border: `2px solid ${selected ? T.accent : T.border}`, background: selected ? T.accent : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 11, color: '#fff' }}>{selected ? '✓' : ''}</span>
+                        }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 12, border: `1.5px solid ${selected ? T.accent : T.border}`, background: selected ? T.accentLight : '#fff', cursor: 'pointer', fontFamily: ff, fontSize: 14, fontWeight: selected ? 600 : 500, color: selected ? T.accent : T.textSec, userSelect: 'none', transition: 'all 0.2s' }}>
+                          <span style={{ width: 18, height: 18, borderRadius: 6, border: `2px solid ${selected ? T.accent : T.border}`, background: selected ? T.accent : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 11, color: '#fff', transition: 'all 0.2s' }}>{selected ? '✓' : ''}</span>
                           {pt}
                         </label>
                       );
                     })}
                   </div>
                 </div>
-                <button onClick={handleSave} disabled={uploading} style={{ padding: '13px 0', borderRadius: 12, background: uploading ? T.muted : T.accent, color: '#fff', border: 'none', fontFamily: ff, fontWeight: 700, fontSize: 15, cursor: uploading ? 'wait' : 'pointer', marginTop: 4, boxShadow: '0 3px 10px rgba(212,96,58,0.3)' }}>
+                <button onClick={handleSave} disabled={uploading} style={{ padding: '14px 0', borderRadius: 14, background: uploading ? T.muted : T.accent, color: '#fff', border: 'none', fontFamily: ff, fontWeight: 700, fontSize: 15, cursor: uploading ? 'wait' : 'pointer', marginTop: 4, boxShadow: '0 4px 14px rgba(212,96,58,0.25)', transition: 'all 0.2s' }}>
                   {uploading ? '⏳ Uploading...' : isEdit ? '💾 Save Changes' : '🚀 Publish Listing'}
                 </button>
               </div>
@@ -392,7 +403,9 @@ function ListingForm({ initialForm, existingPhotos, onSave, onClose, isEdit, pin
 function PhotoCarousel({ photos, archived }: { photos: string[]; archived: boolean }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
+  const touchStartX = useRef(0);
   const imgs = photos.length > 0 ? photos : ['/placeholder.png'];
+  const multi = imgs.length > 1;
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -401,20 +414,59 @@ function PhotoCarousel({ photos, archived }: { photos: string[]; archived: boole
     setActiveIdx(idx);
   }, []);
 
+  const scrollTo = useCallback((idx: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const clamped = Math.max(0, Math.min(idx, imgs.length - 1));
+    el.scrollTo({ left: clamped * el.clientWidth, behavior: 'smooth' });
+  }, [imgs.length]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 50) {
+      scrollTo(activeIdx + (dx < 0 ? 1 : -1));
+    }
+  }, [activeIdx, scrollTo]);
+
+  const arrowStyle: React.CSSProperties = {
+    position: 'absolute', top: '50%', transform: 'translateY(-50%)',
+    width: 36, height: 36, borderRadius: '50%', background: 'rgba(0,0,0,0.35)',
+    color: '#fff', border: 'none', cursor: 'pointer', fontSize: 18,
+    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2,
+    backdropFilter: 'blur(8px)', transition: 'opacity 0.2s',
+  };
+
   return (
-    <div style={{ position: 'relative', background: T.tag, borderRadius: '18px 18px 0 0', overflow: 'hidden' }}>
-      <div ref={scrollRef} onScroll={handleScroll} className="photo-carousel"
+    <div style={{ position: 'relative', background: T.tag, borderRadius: '24px 24px 0 0', overflow: 'hidden' }}>
+      <div ref={scrollRef} onScroll={handleScroll} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
+        className="photo-carousel"
         style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
         {imgs.map((src, i) => (
-          <img key={i} src={src} alt="" style={{ width: '100%', height: 320, objectFit: 'contain', background: T.tag, flexShrink: 0, scrollSnapAlign: 'center', filter: archived ? 'grayscale(30%)' : 'none' }} />
+          <img key={i} src={src} alt="" style={{ width: '100%', height: 340, objectFit: 'contain', background: T.tag, flexShrink: 0, scrollSnapAlign: 'center', filter: archived ? 'grayscale(30%)' : 'none' }} />
         ))}
       </div>
-      {imgs.length > 1 && (
-        <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>
-          {imgs.map((_, i) => (
-            <div key={i} style={{ width: activeIdx === i ? 16 : 6, height: 6, borderRadius: 3, background: activeIdx === i ? '#fff' : 'rgba(255,255,255,0.5)', transition: 'all 0.25s ease' }} />
-          ))}
-        </div>
+      {multi && activeIdx > 0 && (
+        <button onClick={() => scrollTo(activeIdx - 1)} aria-label="Previous photo" style={{ ...arrowStyle, left: 12 }}>&#8249;</button>
+      )}
+      {multi && activeIdx < imgs.length - 1 && (
+        <button onClick={() => scrollTo(activeIdx + 1)} aria-label="Next photo" style={{ ...arrowStyle, right: 12 }}>&#8250;</button>
+      )}
+      {multi && (
+        <>
+          <div style={{ position: 'absolute', top: 14, left: 14, background: 'rgba(0,0,0,0.45)', color: '#fff', padding: '4px 12px', borderRadius: 12, fontSize: 12, fontWeight: 600, fontFamily: ff, zIndex: 2, backdropFilter: 'blur(4px)' }}>
+            {activeIdx + 1} / {imgs.length}
+          </div>
+          <div style={{ position: 'absolute', bottom: 14, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>
+            {imgs.map((_, i) => (
+              <button key={i} onClick={() => scrollTo(i)} aria-label={`Photo ${i + 1}`}
+                style={{ width: activeIdx === i ? 20 : 7, height: 7, borderRadius: 4, background: activeIdx === i ? '#fff' : 'rgba(255,255,255,0.5)', transition: 'all 0.25s ease', border: 'none', padding: 0, cursor: 'pointer' }} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
@@ -428,30 +480,37 @@ function DetailModal({ item, onClose, onEdit, onArchive, isSeller }: {
   const [showSizeChart, setShowSizeChart] = useState(false);
   const isShoes = item.category === 'Shoes';
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(30,27,24,0.55)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: T.bg, borderRadius: 18, maxWidth: 520, width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 64px rgba(0,0,0,0.22)' }}>
-        <div style={{ flex: 1, overflow: 'auto', borderRadius: '18px 18px 0 0' }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 24, maxWidth: 520, width: '100%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }}>
+        <div style={{ flex: 1, overflow: 'auto', borderRadius: '24px 24px 0 0' }}>
           <div style={{ position: 'relative' }}>
             <PhotoCarousel photos={item.photos} archived={a} />
-            <button onClick={onClose} style={{ position: 'absolute', top: 12, right: 12, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>×</button>
-            {isSeller && <button onClick={e => { e.stopPropagation(); onEdit(item); }} style={{ position: 'absolute', top: 12, right: 54, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>✏️</button>}
-            <div style={{ position: 'absolute', bottom: item.photos.length > 1 ? 30 : 12, left: 12, zIndex: 2 }}>
-              {a ? <span style={{ background: T.archiveBg, color: T.archiveText, padding: '4px 11px', borderRadius: 20, fontSize: 12.5, fontWeight: 700, fontFamily: ff }}>ARCHIVED</span>
-                : <PriceBadge price={item.price} pricingType={item.pricingType} />}
-            </div>
+            <button onClick={onClose} style={{ position: 'absolute', top: 14, right: 14, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>×</button>
+            {isSeller && <button onClick={e => { e.stopPropagation(); onEdit(item); }} style={{ position: 'absolute', top: 14, right: 56, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>✏️</button>}
           </div>
           <div style={{ padding: '20px 24px 16px' }}>
-            <h2 style={{ fontFamily: df, fontSize: 22, fontWeight: 700, color: T.text, margin: 0, lineHeight: 1.3 }}>{item.title}</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+              <h2 style={{ fontFamily: df, fontSize: 22, fontWeight: 700, color: T.text, margin: 0, lineHeight: 1.3, flex: 1 }}>{item.title}</h2>
+              <div style={{ flexShrink: 0, paddingTop: 2 }}>
+                {a ? <span style={{ background: T.archiveBg, color: T.archiveText, padding: '4px 11px', borderRadius: 20, fontSize: 12.5, fontWeight: 700, fontFamily: ff }}>ARCHIVED</span>
+                  : <PriceBadge price={item.price} pricingType={item.pricingType} size="large" />}
+              </div>
+            </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-              <ConditionDot condition={item.condition} /><BrandTag brand={item.brand} /><Tag>{item.ageRange}</Tag><Tag>{item.category}</Tag>
+              <ConditionDot condition={item.condition} />
+              {item.brand && <><span style={{ color: T.border, fontSize: 10 }}>·</span><BrandTag brand={item.brand} /></>}
+              <span style={{ color: T.border, fontSize: 10 }}>·</span>
+              <Tag>{item.ageRange}</Tag>
+              <span style={{ color: T.border, fontSize: 10 }}>·</span>
+              <Tag>{item.category}</Tag>
             </div>
             {item.originalImage && item.photos[0] && item.originalImage !== item.photos[0] && (
               <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${T.border}` }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: `1px solid ${T.border}` }}>
                   <div style={{ padding: '5px 10px', background: T.tag, fontSize: 11, fontWeight: 700, color: T.muted, fontFamily: ff, textAlign: 'center' }}>ORIGINAL</div>
                   <img src={item.originalImage} alt="" style={{ width: '100%', height: 130, objectFit: 'cover' }} />
                 </div>
-                <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${T.border}` }}>
+                <div style={{ borderRadius: 12, overflow: 'hidden', border: `1px solid ${T.border}` }}>
                   <div style={{ padding: '5px 10px', background: T.tag, fontSize: 11, fontWeight: 700, color: T.muted, fontFamily: ff, textAlign: 'center' }}>AS-IS</div>
                   <img src={item.photos[0]} alt="" style={{ width: '100%', height: 130, objectFit: 'cover' }} />
                 </div>
@@ -461,11 +520,11 @@ function DetailModal({ item, onClose, onEdit, onArchive, isSeller }: {
             {isShoes && (
               <div style={{ marginTop: 14 }}>
                 <button onClick={() => setShowSizeChart(!showSizeChart)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 6, background: T.accentLight, border: `1px solid ${T.accent}33`, borderRadius: 10, padding: '8px 14px', cursor: 'pointer', fontFamily: ff, fontSize: 13, fontWeight: 600, color: T.accent, width: '100%', justifyContent: 'center' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, background: T.accentLight, border: 'none', borderRadius: 12, padding: '10px 16px', cursor: 'pointer', fontFamily: ff, fontSize: 13, fontWeight: 600, color: T.accent, width: '100%', justifyContent: 'center', transition: 'all 0.2s' }}>
                   👟 Baby Shoe Size Chart <span style={{ fontSize: 11, transition: 'transform 0.2s', transform: showSizeChart ? 'rotate(180deg)' : 'none' }}>▼</span>
                 </button>
                 {showSizeChart && (
-                  <div style={{ marginTop: 8, borderRadius: 10, overflow: 'hidden', border: `1px solid ${T.border}`, animation: 'fadeUp 0.2s ease' }}>
+                  <div style={{ marginTop: 8, borderRadius: 12, overflow: 'hidden', border: `1px solid ${T.border}`, animation: 'fadeUp 0.2s ease' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: ff, fontSize: 12 }}>
                       <thead>
                         <tr style={{ background: T.tag }}>
@@ -491,26 +550,26 @@ function DetailModal({ item, onClose, onEdit, onArchive, isSeller }: {
               </div>
             )}
             {item.location && (
-              <div style={{ marginTop: 14 }}>
-                <p style={{ fontFamily: ff, fontSize: 12, fontWeight: 700, color: T.muted, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>📍 Collection / Delivery</p>
+              <div style={{ marginTop: 16 }}>
+                <p style={{ fontFamily: ff, fontSize: 11, fontWeight: 700, color: T.muted, margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>📍 Collection / Delivery</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {item.location.split(',').map(pt => pt.trim()).filter(Boolean).map(pt => (
-                    <span key={pt} style={{ background: T.accentLight, color: T.accent, padding: '5px 12px', borderRadius: 20, fontSize: 12.5, fontWeight: 600, fontFamily: ff }}>{pt}</span>
+                    <span key={pt} style={{ background: T.tag, color: T.textSec, padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 500, fontFamily: ff }}>{pt}</span>
                   ))}
                 </div>
               </div>
             )}
-            <div style={{ fontSize: 13, color: T.muted, fontFamily: ff, marginTop: 10, fontWeight: 500 }}>Listed by {item.seller}</div>
+            <div style={{ fontSize: 12, color: T.muted, fontFamily: ff, marginTop: 12, fontWeight: 500 }}>Listed by {item.seller}</div>
           </div>
         </div>
-        <div style={{ padding: '12px 24px 20px', borderTop: `1px solid ${T.border}`, background: T.bg, borderRadius: '0 0 18px 18px', flexShrink: 0 }}>
+        <div style={{ padding: '14px 24px 20px', borderTop: `1px solid ${T.border}`, background: '#fff', borderRadius: '0 0 24px 24px', flexShrink: 0 }}>
           <div style={{ display: 'flex', gap: 10 }}>
             {!a && (
               <a href={`https://wa.me/${item.whatsapp}?text=${encodeURIComponent(`Hi! I'm interested in "${item.title}" from Preloved Kids 🧸${item.photos[0] ? `\n\n📷 Item photo: ${item.photos[0]}` : ''}`)}`} target="_blank" rel="noopener noreferrer"
-                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '13px 0', borderRadius: 12, background: '#25D366', color: '#fff', fontFamily: ff, fontWeight: 700, fontSize: 15, textDecoration: 'none', boxShadow: '0 2px 8px rgba(37,211,102,0.25)' }}>💬 WhatsApp</a>
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px 0', borderRadius: 14, background: '#25D366', color: '#fff', fontFamily: ff, fontWeight: 700, fontSize: 15, textDecoration: 'none', boxShadow: '0 4px 14px rgba(37,211,102,0.2)', transition: 'all 0.2s' }}>💬 WhatsApp</a>
             )}
             {isSeller && (
-              <button onClick={() => onArchive(item.id)} style={{ flex: a ? 1 : 0, minWidth: a ? undefined : 130, padding: '13px 16px', borderRadius: 12, border: `1.5px solid ${a ? T.green : T.border}`, background: a ? T.greenLight : 'transparent', color: a ? T.green : T.muted, fontFamily: ff, fontWeight: 600, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <button onClick={() => onArchive(item.id)} style={{ flex: a ? 1 : 0, minWidth: a ? undefined : 130, padding: '14px 16px', borderRadius: 14, border: `1.5px solid ${a ? T.green : T.border}`, background: a ? T.greenLight : 'transparent', color: a ? T.green : T.muted, fontFamily: ff, fontWeight: 600, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.2s' }}>
                 {a ? '📦 Restore' : '📦 Archive'}
               </button>
             )}
@@ -592,47 +651,47 @@ export default function PrelovedApp({ initialListings }: { initialListings: List
 
   return (
     <div style={{ fontFamily: ff, background: T.bg, minHeight: '100vh', color: T.text }}>
-      <header style={{ background: T.headerBg, borderBottom: `1.5px solid ${T.border}`, position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ maxWidth: 960, margin: '0 auto', padding: '16px 20px' }}>
+      {/* Clean minimal header */}
+      <header style={{ background: T.headerBg, borderBottom: `1px solid ${T.border}`, position: 'sticky', top: 0, zIndex: 100 }}>
+        <div style={{ maxWidth: 960, margin: '0 auto', padding: '12px 16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
             <div onClick={() => { if (isSeller) { setIsSeller(false); setSellerPin(''); setViewMode('active'); refreshListings(false); } else setShowPin(true); }} style={{ cursor: 'pointer', minWidth: 0 }} title={isSeller ? 'Exit seller mode' : 'Enter seller mode'}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <h1 style={{ fontFamily: df, fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: T.text, whiteSpace: 'nowrap' }}>🧸 Preloved Kids</h1>
-                {isSeller && <span style={{ background: T.sellerBadgeBg, color: T.sellerBadge, padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700, fontFamily: ff, whiteSpace: 'nowrap', flexShrink: 0 }}>🔓 SELLER</span>}
+                <h1 style={{ fontFamily: df, fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', color: T.text, whiteSpace: 'nowrap' }}>🧸 Preloved Kids</h1>
+                {isSeller && <span style={{ background: T.sellerBadgeBg, color: T.sellerBadge, padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700, fontFamily: ff, whiteSpace: 'nowrap', flexShrink: 0 }}>SELLER</span>}
               </div>
-              <p style={{ fontSize: 12, color: T.muted, marginTop: 2, fontWeight: 500 }}>Quality second-hand treasures for little ones</p>
             </div>
-            {isSeller && <button onClick={() => setShowCreate(true)} style={{ padding: '9px 14px', borderRadius: 11, background: T.accent, color: '#fff', border: 'none', fontFamily: ff, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, boxShadow: '0 3px 10px rgba(212,96,58,0.3)', whiteSpace: 'nowrap', flexShrink: 0 }}>✨ List</button>}
+            {isSeller && <button onClick={() => setShowCreate(true)} style={{ padding: '8px 16px', borderRadius: 20, background: T.accent, color: '#fff', border: 'none', fontFamily: ff, fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, boxShadow: '0 2px 8px rgba(212,96,58,0.2)', whiteSpace: 'nowrap', flexShrink: 0, transition: 'all 0.2s' }}>+ List</button>}
           </div>
-          <div style={{ marginTop: 14, position: 'relative' }}>
-            <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: T.muted }}>🔍</span>
-            <input placeholder="Search toys, books, brands..." value={search} onChange={e => setSearch(e.target.value)} style={{ width: '100%', padding: '11px 14px 11px 38px', borderRadius: 10, border: `1.5px solid ${T.border}`, background: '#fff', fontFamily: ff, fontSize: 14, color: T.text, outline: 'none', fontWeight: 500 }} />
+          <div style={{ marginTop: 10, position: 'relative' }}>
+            <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: T.muted }}>🔍</span>
+            <input placeholder="Search toys, books, brands..." value={search} onChange={e => setSearch(e.target.value)} style={{ width: '100%', padding: '10px 14px 10px 38px', borderRadius: 12, border: `1px solid ${T.border}`, background: T.tag, fontFamily: ff, fontSize: 14, color: T.text, outline: 'none', fontWeight: 500, transition: 'all 0.2s' }} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10 }}>
             {isSeller && (
-              <div style={{ display: 'flex', background: T.tag, borderRadius: 10, padding: 3, flexShrink: 0 }}>
-                <button onClick={() => setViewMode('active')} style={{ padding: '5px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: ff, fontSize: 12, fontWeight: 600, background: viewMode === 'active' ? T.card : 'transparent', color: viewMode === 'active' ? T.text : T.muted, boxShadow: viewMode === 'active' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>Active ({activeCount})</button>
-                <button onClick={() => setViewMode('archived')} style={{ padding: '5px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: ff, fontSize: 12, fontWeight: 600, background: viewMode === 'archived' ? T.card : 'transparent', color: viewMode === 'archived' ? T.text : T.muted, boxShadow: viewMode === 'archived' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>📦 Archived ({archivedCount})</button>
+              <div style={{ display: 'flex', background: T.tag, borderRadius: 20, padding: 3, flexShrink: 0 }}>
+                <button onClick={() => setViewMode('active')} style={{ padding: '5px 12px', borderRadius: 18, border: 'none', cursor: 'pointer', fontFamily: ff, fontSize: 12, fontWeight: 600, background: viewMode === 'active' ? T.card : 'transparent', color: viewMode === 'active' ? T.text : T.muted, boxShadow: viewMode === 'active' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.2s' }}>Active ({activeCount})</button>
+                <button onClick={() => setViewMode('archived')} style={{ padding: '5px 12px', borderRadius: 18, border: 'none', cursor: 'pointer', fontFamily: ff, fontSize: 12, fontWeight: 600, background: viewMode === 'archived' ? T.card : 'transparent', color: viewMode === 'archived' ? T.text : T.muted, boxShadow: viewMode === 'archived' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.2s' }}>📦 Archived ({archivedCount})</button>
               </div>
             )}
             <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2 }}>
               {CATEGORIES.map(c => (
-                <button key={c} onClick={() => setCat(c)} style={{ padding: '6px 14px', borderRadius: 20, border: cat === c ? 'none' : `1.5px solid ${T.border}`, cursor: 'pointer', fontFamily: ff, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', background: cat === c ? T.accent : T.card, color: cat === c ? '#fff' : T.textSec, boxShadow: cat === c ? '0 2px 6px rgba(212,96,58,0.25)' : 'none' }}>{c}</button>
+                <button key={c} onClick={() => setCat(c)} style={{ padding: '6px 14px', borderRadius: 20, border: 'none', cursor: 'pointer', fontFamily: ff, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', background: cat === c ? T.text : T.tag, color: cat === c ? '#fff' : T.muted, transition: 'all 0.2s' }}>{c}</button>
               ))}
             </div>
           </div>
         </div>
       </header>
 
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '16px 20px 0' }}>
-        <p style={{ fontFamily: ff, fontSize: 13, color: T.muted, fontWeight: 600 }}>{filtered.length} {viewMode === 'archived' ? 'archived ' : ''}item{filtered.length !== 1 ? 's' : ''}</p>
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '14px 16px 0' }}>
+        <p style={{ fontFamily: ff, fontSize: 12, color: T.muted, fontWeight: 500 }}>{filtered.length} {viewMode === 'archived' ? 'archived ' : ''}item{filtered.length !== 1 ? 's' : ''}</p>
       </div>
 
-      <main style={{ maxWidth: 960, margin: '0 auto', padding: '12px 12px 40px' }}>
+      <main style={{ maxWidth: 960, margin: '0 auto', padding: '10px 10px 40px' }}>
         {filtered.length > 0 ? (
           <div className="masonry-grid">
             {filtered.map((item, i) => (
-              <div key={item.id} style={{ animation: `fadeUp 0.35s ease ${i * 0.06}s both` }}><Card item={item} isSeller={isSeller} onClick={(it) => { setSelected(it); fetch('/api/listings', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: it.id, action: 'view' }) }).catch(() => {}); }} /></div>
+              <div key={item.id} style={{ animation: `fadeUp 0.35s ease ${i * 0.05}s both` }}><Card item={item} isSeller={isSeller} onClick={(it) => { setSelected(it); fetch('/api/listings', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: it.id, action: 'view' }) }).catch(() => {}); }} /></div>
             ))}
           </div>
         ) : (
@@ -643,7 +702,7 @@ export default function PrelovedApp({ initialListings }: { initialListings: List
         )}
       </main>
 
-      <footer style={{ borderTop: `1.5px solid ${T.border}`, padding: 20, textAlign: 'center', fontFamily: ff, fontSize: 12, color: T.muted, fontWeight: 500, background: T.headerBg }}>
+      <footer style={{ borderTop: `1px solid ${T.border}`, padding: 20, textAlign: 'center', fontFamily: ff, fontSize: 11, color: T.muted, fontWeight: 500, background: T.headerBg }}>
         Made with ❤️ for the little ones · Preloved Kids © 2026
       </footer>
 
